@@ -26,10 +26,18 @@ namespace Console{
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
         string input = "Command here";
 
+        public static DeveloperConsole Instance
+        {
+            get
+            {
+                return FindObjectOfType<DeveloperConsole>();
+            }
+        }
        
         public void Start()
         {
             commands = new Commands();
+            _instance = this;
         }
 
         public void InputSubmit(string _input)
@@ -58,22 +66,22 @@ namespace Console{
             Write(output);
         }
 
-        public bool WriteLog(string input)
+        public static bool WriteLog(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
-            consoleOutputs.Add(output);
+            Instance.consoleOutputs.Add(output);
             return true;
         }
-        public bool WriteWarning(string input)
+        public static bool WriteWarning(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
-            consoleOutputs.Add(output);
+            Instance.consoleOutputs.Add(output);
             return true;
         }
-        public bool WriteError(string input)
+        public static bool WriteError(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Error);
-            consoleOutputs.Add(output);
+            Instance.consoleOutputs.Add(output);
             return true;
         }
         public bool WriteNetwork(string input)

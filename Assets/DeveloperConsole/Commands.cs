@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Console
@@ -34,6 +35,16 @@ namespace Console
         public void RegisterCommands()
         {
             _commands.Add(new Help());
+
+            foreach (Command c in _commands)
+            {
+                if (String.IsNullOrEmpty(c.queryIdentity))
+                {
+                    var message = "Command " + c + "("+c.GetHashCode()+") doesn't has a query identity. It will be ignored." ;
+                    Console.DeveloperConsole.WriteWarning(message);
+                    _commands.Remove(c);
+                }
+            }
             
         }
 
@@ -57,7 +68,6 @@ namespace Console
             }
 
         }
-
-
+      
     }
 }
