@@ -5,15 +5,30 @@ namespace Console
 {
     public class Commands
     {
+        private static Commands instance = null;
+
+
         private List<Command> _commands = new List<Command>();
         
         public Commands()
         {
-
+            RegisterCommands();
         }
-
-        public List<Command> GetCommands()
+        public static Commands Instance
         {
+            get
+            {
+                if (instance == null)
+                {
+                    instance = new Commands();
+                }
+                return instance;
+            }
+        }
+    
+         public List<Command> GetCommands()
+        {
+
             return _commands;
         }
         public void RegisterCommands()
@@ -31,7 +46,14 @@ namespace Console
 
             public override ConsoleOutput Logic()
             {
-                return new ConsoleOutput("Available commands are...", ConsoleOutput.OutputType.Log);
+                string commandList = "\n";
+
+                foreach (Command command in Commands.Instance.GetCommands())
+                {
+                    commandList = commandList + "\n -" + command.queryIdentity;
+                }
+
+                return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
             }
 
         }

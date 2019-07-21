@@ -29,14 +29,7 @@ namespace Console{
        
         public void Start()
         {
-            RegisterCommands();
-        }
-
-        private void RegisterCommands()
-        {
             commands = new Commands();
-            commands.RegisterCommands();
-            Debug.Log(commands.GetCommands()[0].queryIdentity);
         }
 
         public void InputSubmit(string _input)
@@ -147,11 +140,11 @@ namespace Console{
                 consoleOutputs.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-            if (input != "" && Event.current.keyCode == KeyCode.Return && Event.current.keyCode != _keyCode)
+            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.keyCode != _keyCode)
             {
 
                 InputSubmit(input);
-            } else if (input == "" && Event.current.keyCode == KeyCode.Return)
+            } else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
             {
                 GUI.FocusControl("consoleInputField");
 
@@ -184,6 +177,8 @@ namespace Console{
                     lines += 2;
                 }
             }
+            var stringLines = consoleOutput.output.Split('\n').Length; //Count the lines
+            lines += stringLines;
             consoleOutput.lines = lines;
             switch (consoleOutput.outputType) {
                 case ConsoleOutput.OutputType.Log:
