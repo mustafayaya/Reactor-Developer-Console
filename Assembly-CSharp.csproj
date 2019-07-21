@@ -53,6 +53,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\DeveloperConsole\Command.cs" />
+     <Compile Include="Assets\DeveloperConsole\Commands.cs" />
+     <Compile Include="Assets\DeveloperConsole\ConsoleUtility.cs" />
      <Compile Include="Assets\DeveloperConsole\DeveloperConsole.cs" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/Mustafa/Documents/Projects/DeveloperConsole/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
