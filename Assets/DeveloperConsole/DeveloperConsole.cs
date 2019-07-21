@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,6 +16,7 @@ public class DeveloperConsole : MonoBehaviour
     public Color errorOutputColor = Color.red;
     public Color networkOutputColor = Color.cyan;
 
+    public string submitInputAxis = "Submit";
 
 
     List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();
@@ -22,9 +24,16 @@ public class DeveloperConsole : MonoBehaviour
     private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
     string input = "Command here";
 
+    public void InputSubmit(string _input)
+    {
+
+        consoleOutputs.Add(new ConsoleOutput("'"+ _input + "'  is not recognized as a command, type 'help' to list commands.", ConsoleOutput.OutputType.Error));
+        input = "";
+    }
+
     public void Execute(Command command)
     {
-        //execute here
+        
     }
 
     public class Command
@@ -37,19 +46,20 @@ public class DeveloperConsole : MonoBehaviour
     {
         if (active)
         {
-            windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console");
+            windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console",skin.window);
         }
 
     }
+    KeyCode _keyCode;
     void ConsoleWindow(int windowID)
     {
-        GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
         GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
             int scrollHeight = 0;
+        GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
-     
-            foreach (ConsoleOutput c in consoleOutputs)
+
+        foreach (ConsoleOutput c in consoleOutputs)
             {
                    scrollHeight += c.lines * lineSpacing;
             }
@@ -70,11 +80,13 @@ public class DeveloperConsole : MonoBehaviour
                 ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
             }
             GUI.EndScrollView();
-            input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
-            if (GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
+        GUI.SetNextControlName("consoleInputField");
+        input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
+            
+    
+        if (GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
             {
-                consoleOutputs.Add(new ConsoleOutput(input,ConsoleOutput.OutputType.Log));
-
+            InputSubmit(input);
             scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
              if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
@@ -82,6 +94,17 @@ public class DeveloperConsole : MonoBehaviour
                 consoleOutputs.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
              }
+        if (input != "" && Event.current.keyCode == KeyCode.Return && Event.current.keyCode != _keyCode)
+        {
+
+            InputSubmit(input);
+        }else if (input == "" && Event.current.keyCode == KeyCode.Return)
+        {
+            GUI.FocusControl("consoleInputField");
+
+        }
+        _keyCode = Event.current.keyCode;
+
     }
 
     string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
@@ -89,19 +112,24 @@ public class DeveloperConsole : MonoBehaviour
         style.font.RequestCharactersInTexture(consoleOutput.output, style.fontSize, style.fontStyle);
         int _labelWidth = 0;
 
-
-            foreach (char c in consoleOutput.output.ToCharArray())
+        foreach (char c in consoleOutput.output.ToCharArray())
         {
             CharacterInfo characterInfo;
             style.font.GetCharacterInfo(c, out characterInfo, style.fontSize);
             _labelWidth += (int)characterInfo.width;
-
         }
 
         int lines = (int)Mathf.Clamp(Mathf.Floor( _labelWidth / position.width),1,128) ;
-        if (lines != 1)
+        if (lines != 1)//If there is more than one line, fix the spacing bug with adding more lines.
         {
-            lines += 2;
+            if (lines == 2)
+            {
+                lines += 1;
+            }
+            else
+            {
+                lines += 2;
+            }
         }
         consoleOutput.lines = lines;
         switch (consoleOutput.outputType){
@@ -137,9 +165,11 @@ public class DeveloperConsole : MonoBehaviour
         }
         public ConsoleOutput(string entry,OutputType type)
         {
-            output = entry;
+            var src = DateTime.Now;
+            string dateTimeInformation = "(" + src.Hour + ":" + src.Minute +":" + src.Second +") ";
+            output = dateTimeInformation + entry;
             outputType = type;
-
         }
+        
     }
 }

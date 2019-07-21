@@ -53,7 +53,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\DeveloperConsole\Scripts\DeveloperConsole.cs" />
+     <Compile Include="Assets\DeveloperConsole\DeveloperConsole.cs" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/Mustafa/Documents/Projects/DeveloperConsole/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>

@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 1
   m_Script: {fileID: 12001, guid: 0000000000000000e000000000000000, type: 0}
-  m_Name: New GUISkin
+  m_Name: Cesare-Default
   m_EditorClassIdentifier: 
   m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
   m_box:
@@ -142,7 +142,7 @@ MonoBehaviour:
     m_RichText: 1
     m_TextClipping: 1
     m_ImagePosition: 0
-    m_ContentOffset: {x: 0.15, y: 0}
+    m_ContentOffset: {x: 0.2, y: 0}
     m_FixedWidth: 0
     m_FixedHeight: 0
     m_StretchWidth: 1
@@ -285,8 +285,7 @@ MonoBehaviour:
     m_Name: textfield
     m_Normal:
       m_Background: {fileID: 11024, guid: 0000000000000000e000000000000000, type: 0}
-      m_ScaledBackgrounds:
-      - {fileID: 10305, guid: 0000000000000000f000000000000000, type: 0}
+      m_ScaledBackgrounds: []
       m_TextColor: {r: 0.79999995, g: 0.79999995, b: 0.79999995, a: 1}
     m_Hover:
       m_Background: {fileID: 11026, guid: 0000000000000000e000000000000000, type: 0}
@@ -336,10 +335,10 @@ MonoBehaviour:
       m_Right: 0
       m_Top: 0
       m_Bottom: 0
-    m_Font: {fileID: 12800000, guid: 2cc469f2540b5ac47ad603650f842cf3, type: 3}
-    m_FontSize: 16
+    m_Font: {fileID: 0}
+    m_FontSize: 0
     m_FontStyle: 0
-    m_Alignment: 3
+    m_Alignment: 0
     m_WordWrap: 0
     m_RichText: 0
     m_TextClipping: 1
@@ -352,10 +351,9 @@ MonoBehaviour:
   m_textArea:
     m_Name: textarea
     m_Normal:
-      m_Background: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
-      m_ScaledBackgrounds:
-      - {fileID: 10910, guid: 0000000000000000f000000000000000, type: 0}
-      m_TextColor: {r: 0, g: 0, b: 0, a: 0.98039216}
+      m_Background: {fileID: 11024, guid: 0000000000000000e000000000000000, type: 0}
+      m_ScaledBackgrounds: []
+      m_TextColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
     m_Hover:
       m_Background: {fileID: 11026, guid: 0000000000000000e000000000000000, type: 0}
       m_ScaledBackgrounds: []
@@ -365,7 +363,7 @@ MonoBehaviour:
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_Focused:
-      m_Background: {fileID: 10305, guid: 0000000000000000f000000000000000, type: 0}
+      m_Background: {fileID: 0}
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_OnNormal:

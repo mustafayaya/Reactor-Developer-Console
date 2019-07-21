@@ -293,12 +293,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   active: 1
-  scrollPosition: {x: 0, y: 0}
+  skin: {fileID: 11400000, guid: 96131b62b1eaabf4ab9ff8d1c1b97424, type: 2}
   lineSpacing: 20
-  inputLimit: 512
-  tex_thrashcan: {fileID: 2800000, guid: 48ee80cded7873a42bc3ddc483f59086, type: 3}
-  skin: {fileID: 11400000, guid: 8b732f0f5154e144f8f5d0b3fd9cddf9, type: 2}
-  input: Command here
+  inputLimit: 64
+  logOutputColor: {r: 1, g: 1, b: 1, a: 1}
+  warningOutputColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  errorOutputColor: {r: 1, g: 0, b: 0, a: 1}
+  networkOutputColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!4 &1301172865
 Transform:
   m_ObjectHideFlags: 0
