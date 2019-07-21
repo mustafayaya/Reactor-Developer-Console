@@ -16,78 +16,94 @@ public class DeveloperConsole : MonoBehaviour
 
     }
 
-    private Rect windowRect = new Rect(200, 200,Screen.width * 50/100, Screen.height * 60 / 100);
+
+    public bool enabled = true;
+    private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
     public Vector2 scrollPosition = Vector2.zero;
-    List<string> lines = new List<string>();
+    public int lineSpacing = 20;
+    public int inputLimit = 64;
+
+    List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();
 
     public GUISkin skin;
     void OnGUI()
     {
-        windowRect= GUI.Window(0, windowRect, ConsoleWindow, "Developer Console");
+        if (enabled)
+        {
+            windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console");
+        }
 
     }
-    string Entry = "baba";
+    public string input = "Command here";
     void ConsoleWindow(int windowID)
     {
-        GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
+            GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
+            int scrollHeight = 0;
 
-        scrollPosition = GUI.BeginScrollView(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), scrollPosition, new Rect(20, 20, windowRect.width - 60, lines.Count *20));
-        GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height * 2),"",skin.box);
+     
+            foreach (ConsoleOutput c in consoleOutputs)
+            {
+                   scrollHeight += c.lines * lineSpacing;
+            }
+        
+            scrollPosition = GUI.BeginScrollView(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), scrollPosition, new Rect(20, 20, windowRect.width - 60, scrollHeight));
+            GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height * 2), "", skin.box);
 
-        for (int i = 0; i < lines.Count; i++)
-        {
-
-            SmartGUITextField(new Rect(20, 20 + i * 20, windowRect.width - 20, 60), lines[i], skin.label);
-        }
-
-
-
-
-
-        GUI.EndScrollView();
-        Entry = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width-160, 25), Entry, 64,skin.textField);
-        if(GUI.Button(new Rect(windowRect.width - 120, windowRect.height - 45, 100, 25), "Submit", skin.button))
-        {
-            lines.Add("Presseddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd" + lines.Count);
-            scrollPosition = new Vector2(scrollPosition.x, lines.Count * 20); 
-        }
-
+            for (int i = 0; i < consoleOutputs.Count; i++)
+            {
+                int space = 0;
+                foreach (ConsoleOutput c in consoleOutputs)
+                {
+                    if (consoleOutputs.IndexOf(c) < i)
+                    {
+                        space += c.lines * lineSpacing;
+                    }
+                }
+                //Debug.Log("Space :" + space + "Lines : " + consoleOutputs.Count);
+                SmartGUITextField(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
+            }
+            GUI.EndScrollView();
+            input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
+            if (GUI.Button(new Rect(windowRect.width - 120, windowRect.height - 45, 100, 25), "Submit", skin.button))
+            {
+                consoleOutputs.Add(new ConsoleOutput(input));
+                scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
+            }
     }
 
-    string SmartGUITextField(Rect position, string text,GUIStyle style)
+    string SmartGUITextField(Rect position, ConsoleOutput text, GUIStyle style)
     {
-        var words = text.Split(" "[0]); //Split the string into seperate words 
-        var result = "";
+        style.font.RequestCharactersInTexture(text.output, style.fontSize, style.fontStyle);
+        int _labelWidth = 0;
 
-        for (var index = 0; index < words.Length; index++)
+
+            foreach (char c in text.output.ToCharArray())
         {
-            var word = words[index].Trim();
-            if (index == 0)
-            {
+            CharacterInfo characterInfo;
+            style.font.GetCharacterInfo(c, out characterInfo, style.fontSize);
+            _labelWidth += (int)characterInfo.width;
 
-                result = words[0];
-
-
-            }
-
-            if (index > 0)
-            {
-                result += " " + word;
-            }
-            
-
-            //if (TextSize.width > position.width)
-            //{
-            //    //remover 
-            //    result = result.Substring(0, result.Length - (word.Length));
-            //    result += "\n" + word;
-            //    var i = Mathf.Floor( TextSize.width / position.width) * 30;
-            //    GUI.TextArea(new Rect(position.x,position.y,position.width,position.height + i),text,style);
-            //    return result;
-            //}
         }
-        GUI.TextArea(position, text, style);
 
+        int lines = (int)Mathf.Clamp(Mathf.Floor( _labelWidth / position.width),1,128) ;
+        if (lines != 1)
+        {
+            lines += 2;
+        }
+        text.lines = lines;
+        //Debug.Log("_labelWidth = "+ _labelWidth + "position.width = "+ position.width +" TEXT LINES " + lines);
+        GUI.TextArea(new Rect(position.x,position.y,position.width, lines * 20), text.output, style);
         return null;
+    }
+
+    class ConsoleOutput
+    {
+        public string output;
+        public int lines;
+
+        public ConsoleOutput(string entry)
+        {
+            output = entry;
+        }
     }
 }
