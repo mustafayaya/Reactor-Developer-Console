@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 namespace Console{
     public class DeveloperConsole : MonoBehaviour
@@ -51,11 +52,37 @@ namespace Console{
         {
             foreach (Command command in commands.GetCommands())
             {
-                if (command.queryIdentity == _input)
+                var _inputParams = _input.Split(' ');
+
+                if (command.queryIdentity == _inputParams[0])
                 {
+                    if (_inputParams.Length != 0)
+                    {
+                        var keys = command.commandOptions.Keys.ToArray();
+
+                        for (int i = 0; i < keys.Length; i++)
+                        {
+
+                            if ( command.commandOptions[keys[i]] is CommandOption<Transform>)
+                            {
+                                var Game = GameObject.Find(_inputParams[i + 1]);
+                                ((command.commandOptions[keys[i]]) as CommandOption<Transform>).optionParameter = Game.transform;
+                            }
+                            if (command.commandOptions[keys[i]] is CommandOption<Vector3>)
+                            {
+                                ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = Vector3.one;
+
+                            }
+
+                        }
+                        Execute(command);
+
+                        return;
+                    }
                     Execute(command);
                     return;
                 }
+
             }
             WriteLog("There is no command such as '" + _input+"'");
         }

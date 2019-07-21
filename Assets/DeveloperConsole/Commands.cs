@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEngine;
 
 namespace Console
 {
@@ -34,7 +36,8 @@ namespace Console
         }
         public void RegisterCommands()
         {
-            _commands.Add(new Help());
+            _commands.Add(new Help()); 
+            _commands.Add(new Move()); 
 
             foreach (Command c in _commands)
             {
@@ -62,12 +65,46 @@ namespace Console
                 foreach (Command command in Commands.Instance.GetCommands())
                 {
                     commandList = commandList + "\n -" + command.queryIdentity;
+                    var keys = command.commandOptions.Keys.ToArray();
+                    for (int i = 0; i < keys.Length; i++)
+                    {
+                        commandList += " ["+keys[i].ToString()+"] ";
+                    }
                 }
 
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
             }
 
         }
-      
+        class Move : Command
+        {
+             public Move()
+            {
+                queryIdentity = "move";
+                commandOptions.Add("transform",new CommandOption<Transform>());
+                commandOptions.Add("position", new CommandOption<Vector3>());
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                var trans = (commandOptions["transform"] as CommandOption<Transform>).optionParameter;
+                var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
+
+                Debug.Log("transported");
+                if (trans == null)
+                {
+                    return new ConsoleOutput("Transform couldn't found.", ConsoleOutput.OutputType.Log);
+
+                }
+                if (vec == null)
+                {
+                    return new ConsoleOutput("Vector couldn't found.", ConsoleOutput.OutputType.Log);
+
+                }
+                trans.position = vec;
+                return new ConsoleOutput(trans.name + " moved to " + vec.ToString(), ConsoleOutput.OutputType.Log);
+            }
+
+        }
     }
 }
