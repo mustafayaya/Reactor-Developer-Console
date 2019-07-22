@@ -87,7 +87,7 @@ namespace Console
 
             public override ConsoleOutput Logic()
             {
-                var trans = (commandOptions["transform"] as CommandOption<Transform>).optionParameter;
+                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
                 var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
 
                 Debug.Log("transported");
@@ -102,7 +102,7 @@ namespace Console
 
                 }
                 trans.position = vec;
-                return new ConsoleOutput(trans.name + " moved to " + vec.ToString(), ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString() , ConsoleOutput.OutputType.Log);
             }
 
         }

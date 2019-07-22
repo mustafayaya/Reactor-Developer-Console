@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,14 +16,22 @@ namespace Console{
 
     }
 
-    public class CommandOption
+    public abstract class CommandOption
     {
+        public object optionParameter;
+        public Type genericType;
     }
 
-    public class CommandOption<TOption> : CommandOption 
+    public class CommandOption<TOption> : CommandOption
     {
+        Type type;
         public TOption optionParameter;
+        public CommandOption()
+        {
+            type = typeof(TOption);
+            base.genericType = type;
+        }
 
     }
-
+    
 }

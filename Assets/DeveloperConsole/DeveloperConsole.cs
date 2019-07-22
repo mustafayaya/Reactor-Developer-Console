@@ -2,7 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using UnityEngine;
+
 namespace Console{
     public class DeveloperConsole : MonoBehaviour
     {
@@ -43,6 +46,7 @@ namespace Console{
 
         public void InputSubmit(string _input)
         {
+            WriteLog("> " + _input);
             InputQuery(_input);
             input = "";
 
@@ -56,17 +60,29 @@ namespace Console{
 
                 if (command.queryIdentity == _inputParams[0])
                 {
-                    if (_inputParams.Length != 0)
+                    if (_inputParams.Length != 1)
                     {
                         var keys = command.commandOptions.Keys.ToArray();
 
                         for (int i = 0; i < keys.Length; i++)
                         {
+                            Type genericTypeArgument = command.commandOptions[keys[i]].GetType().GenericTypeArguments[0];
+                           
+                            if (genericTypeArgument.IsSubclassOf(typeof(Component))) {
+                                Type t = command.commandOptions[keys[i]].genericType.GetType();
+                                var query = (ParamQuery(command.commandOptions[keys[i]].genericType, _inputParams[i + 1]));
+                                if (query != null)
+                                {
+                                    command.commandOptions[keys[i]].optionParameter = query;
 
-                            if ( command.commandOptions[keys[i]] is CommandOption<Transform>)
-                            {
-                                var Game = GameObject.Find(_inputParams[i + 1]);
-                                ((command.commandOptions[keys[i]]) as CommandOption<Transform>).optionParameter = Game.transform;
+                                }
+                                else
+                                {
+                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    return;
+
+                                }
+
                             }
                             if (command.commandOptions[keys[i]] is CommandOption<Vector3>)
                             {
@@ -121,6 +137,22 @@ namespace Console{
         {
             consoleOutputs.Add(consoleOutput);
             return true;
+        }
+
+        public object ParamQuery(Type t,string parameter)
+        {
+
+            if (t.IsSubclassOf(typeof( Component)))
+            {
+                Component query = null;
+
+                var go = GameObject.Find(parameter);
+                if(go != null)
+                {query = go.GetComponent(t); }
+
+                return query;
+            }
+            return null;
         }
 
         void OnGUI()
