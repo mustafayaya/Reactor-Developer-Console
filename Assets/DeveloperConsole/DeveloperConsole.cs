@@ -46,7 +46,7 @@ namespace Console{
 
         public void InputSubmit(string _input)
         {
-            WriteLog("> " + _input);
+            WriteLine("> " + _input);
             InputQuery(_input);
             input = "";
 
@@ -109,6 +109,14 @@ namespace Console{
             Write(output);
         }
 
+
+
+        public static bool WriteLine(string input)
+        {
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log,false);
+            Instance.consoleOutputs.Add(output);
+            return true;
+        }
         public static bool WriteLog(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);

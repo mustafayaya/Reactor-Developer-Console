@@ -24,12 +24,10 @@ namespace Console{
 
     public class CommandOption<TOption> : CommandOption
     {
-        Type type;
         public TOption optionParameter;
         public CommandOption()
         {
-            type = typeof(TOption);
-            base.genericType = type;
+            base.genericType = typeof(TOption);
         }
 
     }
