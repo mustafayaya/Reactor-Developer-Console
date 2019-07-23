@@ -6,7 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
-namespace Console{
+namespace Console
+{
     public class DeveloperConsole : MonoBehaviour
     {
 
@@ -37,7 +38,7 @@ namespace Console{
                 return FindObjectOfType<DeveloperConsole>();
             }
         }
-       
+
         public void Start()
         {
             commands = new Commands();
@@ -46,7 +47,8 @@ namespace Console{
 
         public void InputSubmit(string _input)
         {
-            WriteLog("> " + _input);
+            _input.Trim();
+            WriteLine("> " + _input);
             InputQuery(_input);
             input = "";
 
@@ -54,9 +56,10 @@ namespace Console{
 
         public void InputQuery(string _input)
         {
+
             foreach (Command command in commands.GetCommands())
             {
-                var _inputParams = _input.Split(' ');
+                var _inputParams = GetInputParameters(_input);
 
                 if (command.queryIdentity == _inputParams[0])
                 {
@@ -67,8 +70,9 @@ namespace Console{
                         for (int i = 0; i < keys.Length; i++)
                         {
                             Type genericTypeArgument = command.commandOptions[keys[i]].GetType().GenericTypeArguments[0];
-                           
-                            if (genericTypeArgument.IsSubclassOf(typeof(Component))) {
+
+                            if (genericTypeArgument.IsSubclassOf(typeof(Component)))
+                            {
                                 Type t = command.commandOptions[keys[i]].genericType.GetType();
                                 var query = (ParamQuery(command.commandOptions[keys[i]].genericType, _inputParams[i + 1]));
                                 if (query != null)
@@ -100,7 +104,7 @@ namespace Console{
                 }
 
             }
-            WriteLog("There is no command such as '" + _input+"'");
+            WriteLog("There is no command such as '" + _input + "'");
         }
 
         public void Execute(Command command)
@@ -109,6 +113,14 @@ namespace Console{
             Write(output);
         }
 
+
+
+        public static bool WriteLine(string input)
+        {
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
+            Instance.consoleOutputs.Add(output);
+            return true;
+        }
         public static bool WriteLog(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
@@ -139,16 +151,16 @@ namespace Console{
             return true;
         }
 
-        public object ParamQuery(Type t,string parameter)
+        public object ParamQuery(Type t, string parameter)
         {
 
-            if (t.IsSubclassOf(typeof( Component)))
+            if (t.IsSubclassOf(typeof(Component)))
             {
                 Component query = null;
 
                 var go = GameObject.Find(parameter);
-                if(go != null)
-                {query = go.GetComponent(t); }
+                if (go != null)
+                { query = go.GetComponent(t); }
 
                 return query;
             }
@@ -211,7 +223,8 @@ namespace Console{
             {
 
                 InputSubmit(input);
-            } else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
+            }
+            else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
             {
                 GUI.FocusControl("consoleInputField");
 
@@ -247,7 +260,8 @@ namespace Console{
             var stringLines = consoleOutput.output.Split('\n').Length; //Count the lines
             lines += stringLines;
             consoleOutput.lines = lines;
-            switch (consoleOutput.outputType) {
+            switch (consoleOutput.outputType)
+            {
                 case ConsoleOutput.OutputType.Log:
                     GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
                     break;
@@ -262,6 +276,56 @@ namespace Console{
                     break;
             }
             return null;
+        }
+
+        private string[] GetInputParameters(string _input)
+        {
+            List<string> _inputParams = new List<string>();
+            int paramCount = 0;
+            var charList = _input.ToCharArray();
+            bool readingParam = false;
+            string _param = "";
+            for (int i = 0; i< _input.Length; i++)
+            {
+                if (charList[i] == '(' && !readingParam)
+                {
+                    readingParam = true;
+                }
+                if (charList[i] != ')' && readingParam && charList[i] != '(')
+                {
+                    _param += charList[i].ToString();
+
+                }
+
+                if (charList[i] != ' ' && !readingParam)
+                {
+                    _param += charList[i].ToString();
+
+                }
+                if (charList[i] == ' ' && !readingParam)
+                {
+                    _inputParams.Add(_param);
+                    _param = "";
+                    paramCount += 1;
+                }
+                if (charList[i] == ')' && readingParam)
+                {
+                    readingParam = false;
+
+                }
+                if (i == _input.Length -1 && !String.IsNullOrEmpty(_param))
+                {
+                    _inputParams.Add(_param);
+                    _param = "";
+                    paramCount += 1;
+                }
+            }
+
+            foreach (string s in _inputParams)
+            {
+                s.Trim();
+            }
+            return _inputParams.ToArray();
         }
 
 

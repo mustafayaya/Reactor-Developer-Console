@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Console
 {
-     public class ConsoleOutput
+    public class ConsoleOutput
     {
         public string output;
         public OutputType outputType;
@@ -27,7 +27,22 @@ namespace Console
             output = dateTimeInformation + entry;
             outputType = type;
         }
+        public ConsoleOutput(string entry, OutputType type, bool startsWithTime)
+        {
+            var src = DateTime.Now;
+            if (startsWithTime)
+            {
+                string dateTimeInformation = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
+                output = dateTimeInformation + entry;
+            }
+            else
+            {
 
+                output = entry;
+            }
+
+            outputType = type;
+        }
     }
 
 }
