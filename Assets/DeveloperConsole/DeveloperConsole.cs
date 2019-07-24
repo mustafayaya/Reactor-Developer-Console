@@ -91,7 +91,7 @@ namespace Console
                             if (command.commandOptions[keys[i]] is CommandOption<Vector3>)
                             {
                                 Vector3 query = Vector3.zero;
-                                if (GetVector3FromString(_inputParams[i + 1],out query)){
+                                if (Utility.GetVector3FromString(_inputParams[i + 1],out query)){
                                     ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = query;
 
                                 }
@@ -332,58 +332,6 @@ namespace Console
             return _inputParams.ToArray();
         }
 
-        public static bool GetVector3FromString(string vectorString, out Vector3 result)
-        {
-
-            List<float> vectorCrenditicals = new List<float>();
-            string crenditical = "";
-            char[] _chars = vectorString.ToCharArray();
-
-            for (int i = 0; i < _chars.Length; i++)
-            {
-
-                if (_chars[i] != ',')
-                {
-                    crenditical += _chars[i];
-                }
-                if (_chars[i] == ',')
-                {
-
-                    float parseResult = 0;
-                    if (float.TryParse(crenditical, out parseResult))
-                    {
-
-                        vectorCrenditicals.Add(parseResult);
-                        crenditical = "";
-                    }
-                    else
-                    {
-                        result = Vector3.zero;
-                        return false;
-                    }
-                }
-                if (i == _chars.Length -1)
-                {
-                    float parseResult = 0;
-                    if (float.TryParse(crenditical, out parseResult))
-                    {
-
-                        vectorCrenditicals.Add(parseResult);
-                        crenditical = "";
-                    }
-                }
-            }
-            if (vectorCrenditicals.Count == 3)
-            {
-                result = new Vector3(vectorCrenditicals[0], vectorCrenditicals[1], vectorCrenditicals[2]);
-                return true;
-            }
-            else
-            {
-
-                result = Vector3.zero;
-                return false;
-            }
-        }
+       
     }
 }
