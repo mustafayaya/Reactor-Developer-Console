@@ -49,12 +49,12 @@ namespace Console
     }
     public static class Utility
     {
-        public static bool GetVector3FromString(string vectorString, out Vector3 result)
+        public static bool GetVector3FromString(string data, out Vector3 result)
         {
 
             List<float> vectorCrenditicals = new List<float>();
             string crenditical = "";
-            char[] _chars = vectorString.ToCharArray();
+            char[] _chars = data.ToCharArray();
 
             for (int i = 0; i < _chars.Length; i++)
             {
@@ -96,6 +96,56 @@ namespace Console
             {
 
                 result = Vector3.zero;
+                return false;
+            }
+        }
+
+        public static bool GetQuaternionFromString(string data, out Quaternion result)
+        {
+            List<float> vectorCrenditicals = new List<float>();
+            string crenditical = "";
+            char[] _chars = data.ToCharArray();
+
+            for (int i = 0; i < _chars.Length; i++)
+            {
+                if (_chars[i] != ',')
+                {
+                    crenditical += _chars[i];
+                }
+                if (_chars[i] == ',')
+                {
+                    float parseResult = 0;
+                    if (float.TryParse(crenditical, out parseResult))
+                    {
+                        vectorCrenditicals.Add(parseResult);
+                        crenditical = "";
+                    }
+                    else
+                    {
+                        result = Quaternion.identity;
+                        return false;
+                    }
+                }
+                if (i == _chars.Length - 1)
+                {
+                    float parseResult = 0;
+                    if (float.TryParse(crenditical, out parseResult))
+                    {
+
+                        vectorCrenditicals.Add(parseResult);
+                        crenditical = "";
+                    }
+                }
+            }
+            if (vectorCrenditicals.Count ==4)
+            {
+                result = new Quaternion(vectorCrenditicals[0], vectorCrenditicals[1], vectorCrenditicals[2], vectorCrenditicals[2]);
+                return true;
+            }
+            else
+            {
+
+                result = Quaternion.identity;
                 return false;
             }
         }

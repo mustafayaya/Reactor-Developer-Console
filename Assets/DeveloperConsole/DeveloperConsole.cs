@@ -78,7 +78,6 @@ namespace Console
                                 if (query != null)
                                 {
                                     command.commandOptions[keys[i]].optionParameter = query;
-
                                 }
                                 else
                                 {
