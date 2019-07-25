@@ -83,7 +83,6 @@ namespace Console
                                 {
                                     WriteLog("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
-
                                 }
 
                             }
@@ -92,14 +91,30 @@ namespace Console
                                 Vector3 query = Vector3.zero;
                                 if (Utility.GetVector3FromString(_inputParams[i + 1],out query)){
                                     ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = query;
-
+                                }
+                                else
+                                {
+                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    return;
                                 }
 
                             }
+                            if (command.commandOptions[keys[i]] is CommandOption<Quaternion>)
+                            {
+                                var query = Quaternion.identity;
+                                if (Utility.GetQuaternionFromString(_inputParams[i + 1], out query))
+                                {
+                                    ((command.commandOptions[keys[i]]) as CommandOption<Quaternion>).optionParameter = query;
+                                }
+                                else
+                                {
+                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    return;
+                                }
 
+                            }
                         }
                         Execute(command);
-
                         return;
                     }
                     Execute(command);

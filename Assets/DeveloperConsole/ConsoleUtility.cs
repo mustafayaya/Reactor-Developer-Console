@@ -149,6 +149,11 @@ namespace Console
                 return false;
             }
         }
+
+        public static string ParamsGivenWrong(object _objOfType)
+        {
+            return ("Paramaters for "+ _objOfType.GetType()+" given wrong!");
+        }
     }
 
 }

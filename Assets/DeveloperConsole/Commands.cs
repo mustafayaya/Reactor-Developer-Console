@@ -37,7 +37,8 @@ namespace Console
         public void RegisterCommands()
         {
             _commands.Add(new Help()); 
-            _commands.Add(new Move()); 
+            _commands.Add(new Move());
+            _commands.Add(new Rotate());
 
             foreach (Command c in _commands)
             {
@@ -90,19 +91,49 @@ namespace Console
                 var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
                 var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
 
-                Debug.Log("transported");
+                //Debug.Log("transported");
                 if (trans == null)
                 {
-                    return new ConsoleOutput("Transform couldn't found.", ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
 
                 }
                 if (vec == null)
                 {
-                    return new ConsoleOutput("Vector couldn't found.", ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(vec), ConsoleOutput.OutputType.Log);
 
                 }
                 trans.position = vec;
                 return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString() , ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
+        class Rotate : Command
+        {
+            public Rotate()
+            {
+                queryIdentity = "rotate";
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("rotation", new CommandOption<Quaternion>());
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
+                var quaternion = (commandOptions["rotation"] as CommandOption<Quaternion>).optionParameter;
+
+                if (trans == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
+
+                }
+                if (quaternion == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(quaternion), ConsoleOutput.OutputType.Log);
+
+                }
+                trans.rotation = quaternion;
+                return new ConsoleOutput(((Transform)trans).name + " moved to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }
