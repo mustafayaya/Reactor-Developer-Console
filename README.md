@@ -2,7 +2,7 @@
 Cesare console is created with simple Unity 3D GUI library and it is simple to implement to your project. Works with every Unity version.
 
 
-![](https://github.com/mustafayaya/Unity-Developer-Console/blob/master/developer_console.PNG  =400x)
+![](https://github.com/mustafayaya/Unity-Developer-Console/blob/master/developer_console.PNG )
 
 
 # Implementing to your project
