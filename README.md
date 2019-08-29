@@ -1,4 +1,4 @@
-# Cesare - Simple Unity 3d Developer Console
+# Cesare - Simple Unity 3D Developer Console
 Cesare console is created with simple Unity 3D GUI library and it is simple to implement to your project. Works with every Unity version.
 
 # Implementing to your project
