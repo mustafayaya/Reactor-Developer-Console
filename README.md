@@ -2,7 +2,7 @@
 Cesare console is created with simple Unity 3D GUI library and it is simple to implement to your project. Works with every Unity version.
 
 
-![](https://github.com/mustafayaya/Unity-Developer-Console/blob/master/developer_console.png )
+![](https://github.com/mustafayaya/Unity-Developer-Console/blob/master/82EC7ACA-058C-47CD-8D5A-538EB55B8514.png )
 
 
 # Implementing to your project
@@ -11,4 +11,3 @@ Cesare console is created with simple Unity 3D GUI library and it is simple to i
 
 # Adding custom GUISkin
 Just drag your GUISkin to #Style# variable in DeveloperConsole.cs. Make sure that you have a font on TextArea style or you will get error.
-
