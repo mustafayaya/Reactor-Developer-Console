@@ -123,7 +123,7 @@ namespace Console
                 queryIdentity = "rotate";
                 commandOptions.Add("transform", new CommandOption<Transform>());
                 commandOptions.Add("rotation", new CommandOption<Quaternion>());
-                description = "Rotate an game object";
+                description = "Rotate a game object";
 
             }
 
