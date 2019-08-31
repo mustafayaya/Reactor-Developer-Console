@@ -3,7 +3,7 @@
 
 Debug your build, create your own commands easily!
 
-![](image1.png )
+![](Images/image1.png )
 
 # Implementing to your project
 1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases) and import to your project.
@@ -15,7 +15,7 @@ Debug your build, create your own commands easily!
 Don't forget to reference  ```using Console;``` to your C# script.
 It is ready to use!
 
-![](image2.png )
+![](Images/image2.png )
 
 
 # Creating commands
