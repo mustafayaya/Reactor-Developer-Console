@@ -6,7 +6,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using UnityEngine;
 
-namespace Console{
+namespace Console
+{
     public class DeveloperConsole : MonoBehaviour
     {
 
@@ -37,7 +38,7 @@ namespace Console{
                 return FindObjectOfType<DeveloperConsole>();
             }
         }
-       
+
         public void Start()
         {
             commands = new Commands();
@@ -46,17 +47,23 @@ namespace Console{
 
         public void InputSubmit(string _input)
         {
+<<<<<<< HEAD
+            _input.Trim();
+=======
+>>>>>>> master
             WriteLine("> " + _input);
             InputQuery(_input);
+            inputHistory.Add(_input);
             input = "";
 
         }
 
         public void InputQuery(string _input)
         {
+
             foreach (Command command in commands.GetCommands())
             {
-                var _inputParams = _input.Split(' ');
+                var _inputParams = GetInputParameters(_input);
 
                 if (command.queryIdentity == _inputParams[0])
                 {
@@ -67,32 +74,51 @@ namespace Console{
                         for (int i = 0; i < keys.Length; i++)
                         {
                             Type genericTypeArgument = command.commandOptions[keys[i]].GetType().GenericTypeArguments[0];
-                           
-                            if (genericTypeArgument.IsSubclassOf(typeof(Component))) {
+
+                            if (genericTypeArgument.IsSubclassOf(typeof(Component)))
+                            {
                                 Type t = command.commandOptions[keys[i]].genericType.GetType();
                                 var query = (ParamQuery(command.commandOptions[keys[i]].genericType, _inputParams[i + 1]));
                                 if (query != null)
                                 {
                                     command.commandOptions[keys[i]].optionParameter = query;
-
                                 }
                                 else
                                 {
                                     WriteLog("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
-
                                 }
 
                             }
                             if (command.commandOptions[keys[i]] is CommandOption<Vector3>)
                             {
-                                ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = Vector3.one;
+                                Vector3 query = Vector3.zero;
+                                if (Utility.GetVector3FromString(_inputParams[i + 1],out query)){
+                                    ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = query;
+                                }
+                                else
+                                {
+                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    return;
+                                }
 
                             }
+                            if (command.commandOptions[keys[i]] is CommandOption<Quaternion>)
+                            {
+                                var query = Quaternion.identity;
+                                if (Utility.GetQuaternionFromString(_inputParams[i + 1], out query))
+                                {
+                                    ((command.commandOptions[keys[i]]) as CommandOption<Quaternion>).optionParameter = query;
+                                }
+                                else
+                                {
+                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    return;
+                                }
 
+                            }
                         }
                         Execute(command);
-
                         return;
                     }
                     Execute(command);
@@ -100,7 +126,7 @@ namespace Console{
                 }
 
             }
-            WriteLog("There is no command such as '" + _input+"'");
+            WriteLog("There is no command such as '" + _input + "'");
         }
 
         public void Execute(Command command)
@@ -113,7 +139,11 @@ namespace Console{
 
         public static bool WriteLine(string input)
         {
+<<<<<<< HEAD
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
+=======
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log,false);
+>>>>>>> master
             Instance.consoleOutputs.Add(output);
             return true;
         }
@@ -147,21 +177,53 @@ namespace Console{
             return true;
         }
 
-        public object ParamQuery(Type t,string parameter)
+        public object ParamQuery(Type t, string parameter)
         {
 
-            if (t.IsSubclassOf(typeof( Component)))
+            if (t.IsSubclassOf(typeof(Component)))
             {
                 Component query = null;
 
                 var go = GameObject.Find(parameter);
-                if(go != null)
-                {query = go.GetComponent(t); }
+                if (go != null)
+                { query = go.GetComponent(t); }
 
                 return query;
             }
             return null;
         }
+
+
+        int _historyState = -1;
+        public void RestoreInput()
+        {
+                if (inputHistory.Count != 0)
+                {
+                    if (_historyState == -1)
+                    {
+                        _historyState = inputHistory.Count - 1;
+                    }
+                    else
+                    {
+                    if (_historyState == 0)
+                    {
+                        _historyState =inputHistory.Count - 1;
+                    }
+                    else
+                    {
+                        _historyState--;
+
+                    }
+                }
+                }
+
+                if (_historyState != -1)
+                {
+                    input = inputHistory[Mathf.Clamp(_historyState, -1, inputHistory.Count)];
+                }
+        }
+
+        public List<string> inputHistory = new List<string>();
 
         void OnGUI()
         {
@@ -171,7 +233,6 @@ namespace Console{
             }
 
         }
-        KeyCode _keyCode;
         void ConsoleWindow(int windowID)
         {
 
@@ -208,25 +269,36 @@ namespace Console{
             if (GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
             {
                 InputSubmit(input);
-                scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
+                scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 40);
             }
             if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
             {
                 consoleOutputs.Clear();
+                inputHistory.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.keyCode != _keyCode)
+            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyUp)
+            {
+
+                RestoreInput();
+
+            }
+            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
 
                 InputSubmit(input);
-            } else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
+
+            }
+            else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
             {
+
                 GUI.FocusControl("consoleInputField");
 
             }
-            _keyCode = Event.current.keyCode;
 
         }
+
+
 
         string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
         {
@@ -255,7 +327,8 @@ namespace Console{
             var stringLines = consoleOutput.output.Split('\n').Length; //Count the lines
             lines += stringLines;
             consoleOutput.lines = lines;
-            switch (consoleOutput.outputType) {
+            switch (consoleOutput.outputType)
+            {
                 case ConsoleOutput.OutputType.Log:
                     GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
                     break;
@@ -272,6 +345,56 @@ namespace Console{
             return null;
         }
 
+        private string[] GetInputParameters(string _input)
+        {
+            List<string> _inputParams = new List<string>();
+            int paramCount = 0;
+            var charList = _input.ToCharArray();
+            bool readingParam = false;
+            string _param = "";
+            for (int i = 0; i< _input.Length; i++)
+            {
+                if (charList[i] == '(' && !readingParam)
+                {
+                    readingParam = true;
+                }
+                if (charList[i] != ')' && readingParam && charList[i] != '(')
+                {
+                    _param += charList[i].ToString();
 
+                }
+
+                if (charList[i] != ' ' && !readingParam)
+                {
+                    _param += charList[i].ToString();
+
+                }
+                if (charList[i] == ' ' && !readingParam)
+                {
+                    _inputParams.Add(_param);
+                    _param = "";
+                    paramCount += 1;
+                }
+                if (charList[i] == ')' && readingParam)
+                {
+                    readingParam = false;
+
+                }
+                if (i == _input.Length -1 && !String.IsNullOrEmpty(_param))
+                {
+                    _inputParams.Add(_param);
+                    _param = "";
+                    paramCount += 1;
+                }
+            }
+
+            foreach (string s in _inputParams)
+            {
+                s.Trim();
+            }
+            return _inputParams.ToArray();
+        }
+
+       
     }
 }

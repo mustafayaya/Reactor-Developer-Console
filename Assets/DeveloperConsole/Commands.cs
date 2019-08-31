@@ -37,7 +37,10 @@ namespace Console
         public void RegisterCommands()
         {
             _commands.Add(new Help()); 
-            _commands.Add(new Move()); 
+            _commands.Add(new Move());
+            _commands.Add(new Rotate());
+            _commands.Add(new Sphere());
+
 
             foreach (Command c in _commands)
             {
@@ -56,6 +59,8 @@ namespace Console
             public Help()
             {
                 queryIdentity = "help";
+                description = "List all available commands";
+
             }
 
             public override ConsoleOutput Logic()
@@ -70,6 +75,9 @@ namespace Console
                     {
                         commandList += " ["+keys[i].ToString()+"] ";
                     }
+
+                    commandList += "  --" + command.description;
+
                 }
 
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
@@ -83,6 +91,7 @@ namespace Console
                 queryIdentity = "move";
                 commandOptions.Add("transform",new CommandOption<Transform>());
                 commandOptions.Add("position", new CommandOption<Vector3>());
+                description = "Translate a game object's transform to a world point";
             }
 
             public override ConsoleOutput Logic()
@@ -90,19 +99,84 @@ namespace Console
                 var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
                 var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
 
-                Debug.Log("transported");
+                //Debug.Log("transported");
                 if (trans == null)
                 {
-                    return new ConsoleOutput("Transform couldn't found.", ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
 
                 }
                 if (vec == null)
                 {
-                    return new ConsoleOutput("Vector couldn't found.", ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(vec), ConsoleOutput.OutputType.Log);
 
                 }
                 trans.position = vec;
                 return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString() , ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
+        class Rotate : Command
+        {
+            public Rotate()
+            {
+                queryIdentity = "rotate";
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("rotation", new CommandOption<Quaternion>());
+                description = "Rotate an game object";
+
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
+                var quaternion = (commandOptions["rotation"] as CommandOption<Quaternion>).optionParameter;
+
+                if (trans == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
+
+                }
+                if (quaternion == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(quaternion), ConsoleOutput.OutputType.Log);
+
+                }
+                trans.rotation = quaternion;
+                return new ConsoleOutput(((Transform)trans).name + " moved to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
+        class Sphere : Command
+        {
+            public Sphere()
+            {
+                queryIdentity = "sphere";
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("rotation", new CommandOption<Quaternion>());
+                description = "Instantiate a physical sphere";
+
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                var rigidbody = sphere.AddComponent<Rigidbody>();
+
+                RaycastHit hit;
+                Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward); ;
+                if (Physics.Raycast(ray,out hit))
+                {
+                    sphere.transform.position = hit.point;
+                }
+                else
+                {
+                    sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward *5f;
+
+                }
+
+                return new ConsoleOutput("Sphere created at " + sphere.transform.position.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }
