@@ -47,16 +47,14 @@ namespace Console
 
         public void InputSubmit(string _input)
         {
-<<<<<<< HEAD
             _input.Trim();
-=======
->>>>>>> master
             WriteLine("> " + _input);
             InputQuery(_input);
             inputHistory.Add(_input);
             input = "";
-
+            submitFocusTrigger = true;
         }
+
 
         public void InputQuery(string _input)
         {
@@ -139,11 +137,7 @@ namespace Console
 
         public static bool WriteLine(string input)
         {
-<<<<<<< HEAD
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
-=======
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log,false);
->>>>>>> master
             Instance.consoleOutputs.Add(output);
             return true;
         }
@@ -197,6 +191,10 @@ namespace Console
         int _historyState = -1;
         public void RestoreInput()
         {
+            if (_historyState >= inputHistory.Count)
+            {
+                _historyState = inputHistory.Count - 1;
+            }
                 if (inputHistory.Count != 0)
                 {
                     if (_historyState == -1)
@@ -224,7 +222,7 @@ namespace Console
         }
 
         public List<string> inputHistory = new List<string>();
-
+        bool submitFocusTrigger;
         void OnGUI()
         {
             if (active)
@@ -235,6 +233,7 @@ namespace Console
         }
         void ConsoleWindow(int windowID)
         {
+
 
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
             int scrollHeight = 0;
@@ -247,6 +246,7 @@ namespace Console
             }
 
             scrollPosition = GUI.BeginScrollView(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), scrollPosition, new Rect(20, 20, windowRect.width - 60, scrollHeight));
+            GUI.SetNextControlName("textArea");
 
             for (int i = 0; i < consoleOutputs.Count; i++)
             {
@@ -262,6 +262,8 @@ namespace Console
                 ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
             }
             GUI.EndScrollView();
+
+
             GUI.SetNextControlName("consoleInputField");
             input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
 
@@ -281,21 +283,27 @@ namespace Console
             {
 
                 RestoreInput();
+                GUI.FocusControl("consoleInputField");
 
             }
             if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
 
                 InputSubmit(input);
-
+               
             }
+
             else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
             {
 
                 GUI.FocusControl("consoleInputField");
 
             }
-
+            if (GUI.GetNameOfFocusedControl() == "" && submitFocusTrigger)
+            {
+                GUI.FocusControl("consoleInputField");
+                submitFocusTrigger = false;
+            }
         }
 
 
