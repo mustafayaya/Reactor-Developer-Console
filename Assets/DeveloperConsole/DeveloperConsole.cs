@@ -47,7 +47,10 @@ namespace Console
 
         public void InputSubmit(string _input)
         {
+<<<<<<< HEAD
             _input.Trim();
+=======
+>>>>>>> master
             WriteLine("> " + _input);
             InputQuery(_input);
             inputHistory.Add(_input);
@@ -136,7 +139,11 @@ namespace Console
 
         public static bool WriteLine(string input)
         {
+<<<<<<< HEAD
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
+=======
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log,false);
+>>>>>>> master
             Instance.consoleOutputs.Add(output);
             return true;
         }

@@ -1,7 +1,13 @@
 /Library
 /Logs
 *sln
+<<<<<<< HEAD
 /.vs/Unity-Developer-Console/v15
 /obj/Debug
 /Temp
 /.vs
+=======
+ProjectSettings
+Packages
+Temp
+>>>>>>> master

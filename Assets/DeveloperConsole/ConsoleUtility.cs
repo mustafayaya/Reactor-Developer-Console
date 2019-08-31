@@ -28,7 +28,11 @@ namespace Console
             output = dateTimeInformation + entry;
             outputType = type;
         }
+<<<<<<< HEAD
         public ConsoleOutput(string entry, OutputType type, bool startsWithTime)
+=======
+        public ConsoleOutput(string entry, OutputType type,bool startsWithTime)
+>>>>>>> master
         {
             var src = DateTime.Now;
             if (startsWithTime)
@@ -38,6 +42,7 @@ namespace Console
             }
             else
             {
+<<<<<<< HEAD
 
                 output = entry;
             }
@@ -154,6 +159,14 @@ namespace Console
         {
             return ("Paramaters for "+ _objOfType.GetType()+" given wrong!");
         }
+=======
+               
+                output =  entry;
+            }
+           
+            outputType = type;
+        }
+>>>>>>> master
     }
 
 }
