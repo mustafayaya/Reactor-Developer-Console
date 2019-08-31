@@ -39,6 +39,8 @@ namespace Console
             _commands.Add(new Help()); 
             _commands.Add(new Move());
             _commands.Add(new Rotate());
+            _commands.Add(new Sphere());
+
 
             foreach (Command c in _commands)
             {
@@ -57,6 +59,8 @@ namespace Console
             public Help()
             {
                 queryIdentity = "help";
+                description = "List all available commands";
+
             }
 
             public override ConsoleOutput Logic()
@@ -71,6 +75,9 @@ namespace Console
                     {
                         commandList += " ["+keys[i].ToString()+"] ";
                     }
+
+                    commandList += "  --" + command.description;
+
                 }
 
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
@@ -84,6 +91,7 @@ namespace Console
                 queryIdentity = "move";
                 commandOptions.Add("transform",new CommandOption<Transform>());
                 commandOptions.Add("position", new CommandOption<Vector3>());
+                description = "Translate a game object's transform to a world point";
             }
 
             public override ConsoleOutput Logic()
@@ -115,6 +123,8 @@ namespace Console
                 queryIdentity = "rotate";
                 commandOptions.Add("transform", new CommandOption<Transform>());
                 commandOptions.Add("rotation", new CommandOption<Quaternion>());
+                description = "Rotate an game object";
+
             }
 
             public override ConsoleOutput Logic()
@@ -134,6 +144,39 @@ namespace Console
                 }
                 trans.rotation = quaternion;
                 return new ConsoleOutput(((Transform)trans).name + " moved to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
+        class Sphere : Command
+        {
+            public Sphere()
+            {
+                queryIdentity = "sphere";
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("rotation", new CommandOption<Quaternion>());
+                description = "Instantiate a physical sphere";
+
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                var rigidbody = sphere.AddComponent<Rigidbody>();
+
+                RaycastHit hit;
+                Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward); ;
+                if (Physics.Raycast(ray,out hit))
+                {
+                    sphere.transform.position = hit.point;
+                }
+                else
+                {
+                    sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward *5f;
+
+                }
+
+                return new ConsoleOutput("Sphere created at " + sphere.transform.position.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }
