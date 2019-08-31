@@ -15,7 +15,7 @@ Debug your build, create your own commands easily!
 Don't forget to reference  ```using Console;``` to your C# script.
 It is ready to use!
 
-![](Images/image2.png )
+![](Images/codes.png )
 
 
 # Creating commands
