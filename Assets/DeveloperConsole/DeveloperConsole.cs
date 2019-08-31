@@ -50,6 +50,7 @@ namespace Console
             _input.Trim();
             WriteLine("> " + _input);
             InputQuery(_input);
+            inputHistory.Add(_input);
             input = "";
 
         }
@@ -185,6 +186,38 @@ namespace Console
             return null;
         }
 
+
+        int _historyState = -1;
+        public void RestoreInput()
+        {
+                if (inputHistory.Count != 0)
+                {
+                    if (_historyState == -1)
+                    {
+                        _historyState = inputHistory.Count - 1;
+                    }
+                    else
+                    {
+                    if (_historyState == 0)
+                    {
+                        _historyState =inputHistory.Count - 1;
+                    }
+                    else
+                    {
+                        _historyState--;
+
+                    }
+                }
+                }
+
+                if (_historyState != -1)
+                {
+                    input = inputHistory[Mathf.Clamp(_historyState, -1, inputHistory.Count)];
+                }
+        }
+
+        public List<string> inputHistory = new List<string>();
+
         void OnGUI()
         {
             if (active)
@@ -193,7 +226,6 @@ namespace Console
             }
 
         }
-        KeyCode _keyCode;
         void ConsoleWindow(int windowID)
         {
 
@@ -235,21 +267,31 @@ namespace Console
             if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
             {
                 consoleOutputs.Clear();
+                inputHistory.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.keyCode != _keyCode)
+            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyUp)
+            {
+
+                RestoreInput();
+
+            }
+            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
 
                 InputSubmit(input);
+
             }
             else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
             {
+
                 GUI.FocusControl("consoleInputField");
 
             }
-            _keyCode = Event.current.keyCode;
 
         }
+
+
 
         string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
         {
