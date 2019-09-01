@@ -3,9 +3,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Console{
+namespace Console {
 
-    public class Command
+    public interface ICommand{
+
+        ConsoleOutput Logic();
+
+    }
+
+    [AttributeUsage(AttributeTargets.Class,AllowMultiple =false,Inherited =true)]
+    public class ConsoleCommandAttribute : Attribute
+    {
+
+    }
+
+
+    public class Command : ICommand
     {
         public string queryIdentity; //Like set,get,execute
 

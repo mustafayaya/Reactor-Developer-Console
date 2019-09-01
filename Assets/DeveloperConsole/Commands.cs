@@ -2,6 +2,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using UnityEditor.Compilation;
 using UnityEngine;
 
 namespace Console
@@ -36,10 +38,12 @@ namespace Console
         }
         public void RegisterCommands()
         {
-            _commands.Add(new Help()); 
-            _commands.Add(new Move());
-            _commands.Add(new Rotate());
-            _commands.Add(new Sphere());
+            var commands = Utility.GetTypesWithCommandAttribute(System.AppDomain.CurrentDomain.GetAssemblies());
+
+            foreach (Command command in commands)
+            {
+                _commands.Add(command);
+            }
 
 
             foreach (Command c in _commands)
@@ -54,6 +58,8 @@ namespace Console
             
         }
 
+
+        [ConsoleCommand]
         class Help : Command
         {
             public Help()
@@ -84,6 +90,8 @@ namespace Console
             }
 
         }
+
+        [ConsoleCommand]
         class Move : Command
         {
              public Move()
@@ -116,6 +124,7 @@ namespace Console
 
         }
 
+        [ConsoleCommand]
         class Rotate : Command
         {
             public Rotate()
@@ -148,6 +157,7 @@ namespace Console
 
         }
 
+        [ConsoleCommand]
         class Sphere : Command
         {
             public Sphere()

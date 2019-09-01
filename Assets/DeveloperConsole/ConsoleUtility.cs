@@ -155,7 +155,28 @@ namespace Console
         {
             return ("Paramaters for "+ _objOfType.GetType()+" given wrong!");
         }
-            
+
+
+       public static IEnumerable<Command> GetTypesWithCommandAttribute(System.Reflection.Assembly[] assemblies)
+        {
+
+            foreach (System.Reflection.Assembly assembly in assemblies)
+            {
+
+                foreach (System.Type type in assembly.GetTypes())
+                {
+
+                    if (type.GetCustomAttributes(typeof(ConsoleCommandAttribute), false).Length > 0 && type.BaseType == typeof(Command))
+                    {
+                        Command instance = (Command)Activator.CreateInstance(type);
+                        yield return instance;
+                    }
+                }
+            }
+
+        }
+
+
     }
 
 }
