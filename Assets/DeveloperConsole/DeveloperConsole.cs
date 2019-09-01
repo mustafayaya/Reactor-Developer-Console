@@ -63,7 +63,7 @@ namespace Console
             {
                 var _inputParams = GetInputParameters(_input);
 
-                if (command.queryIdentity == _inputParams[0])
+                if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity == _inputParams[0])
                 {
                     if (_inputParams.Length != 1)
                     {
@@ -332,7 +332,7 @@ namespace Console
                     lines += 2;
                 }
             }
-            var stringLines = consoleOutput.output.Split('\n').Length; //Count the lines
+            var stringLines = consoleOutput.output.Split('\n').Length - lines + 1; //Count the lines
             lines += stringLines;
             consoleOutput.lines = lines;
             switch (consoleOutput.outputType)

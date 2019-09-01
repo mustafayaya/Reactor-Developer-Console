@@ -5,26 +5,31 @@ using UnityEngine;
 
 namespace Console {
 
-    public interface ICommand{
+    public interface ICommand {
+
 
         ConsoleOutput Logic();
 
+
     }
 
-    [AttributeUsage(AttributeTargets.Class,AllowMultiple =false,Inherited =true)]
-    public class ConsoleCommandAttribute : Attribute
-    {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    public class ConsoleCommandAttribute : Attribute {
+        public string queryIdentity; //Like set,get,execute
+        public string description;
+
+        public ConsoleCommandAttribute(string _queryIdentity, string _description)
+        {
+            queryIdentity = _queryIdentity;
+            description = _description;
+        }
 
     }
 
 
     public class Command : ICommand
     {
-        public string queryIdentity; //Like set,get,execute
-
-        public Dictionary<string,CommandOption> commandOptions = new Dictionary<string, CommandOption>();
-
-        public string description; //Desciption
+        public Dictionary<string, CommandOption> commandOptions = new Dictionary<string, CommandOption>();
 
         public virtual ConsoleOutput Logic() //Logic for execute, returns the output
         {

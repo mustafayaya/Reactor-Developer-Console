@@ -151,9 +151,9 @@ namespace Console
             }
         }
 
-        public static string ParamsGivenWrong(object _objOfType)
+        public static string ParamsGivenWrong<T>()
         {
-            return ("Paramaters for "+ _objOfType.GetType()+" given wrong!");
+            return ("Paramaters for ["+ typeof(T)+"] given wrong!");
         }
 
 

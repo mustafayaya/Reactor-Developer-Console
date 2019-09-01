@@ -10,15 +10,13 @@ namespace Console
 {
     public class Commands
     {
+
+        #region variables
         private static Commands instance = null;
 
 
         private List<Command> _commands = new List<Command>();
-        
-        public Commands()
-        {
-            RegisterCommands();
-        }
+
         public static Commands Instance
         {
             get
@@ -30,6 +28,16 @@ namespace Console
                 return instance;
             }
         }
+
+        #endregion
+
+        #region Initialization
+
+        public Commands()
+        {
+            RegisterCommands();
+        }
+
     
          public List<Command> GetCommands()
         {
@@ -48,7 +56,7 @@ namespace Console
 
             foreach (Command c in _commands)
             {
-                if (String.IsNullOrEmpty(c.queryIdentity))
+                if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
                 {
                     var message = "Command " + c + "("+c.GetHashCode()+") doesn't has a query identity. It will be ignored." ;
                     Console.DeveloperConsole.WriteWarning(message);
@@ -58,14 +66,14 @@ namespace Console
             
         }
 
+        #endregion
 
-        [ConsoleCommand]
+        #region commands
+        [ConsoleCommand("help", "List all available commands")]
         class Help : Command
         {
             public Help()
             {
-                queryIdentity = "help";
-                description = "List all available commands";
 
             }
 
@@ -75,31 +83,28 @@ namespace Console
 
                 foreach (Command command in Commands.Instance.GetCommands())
                 {
-                    commandList = commandList + "\n -" + command.queryIdentity;
+                    commandList = commandList + "\n -" + ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(),typeof(ConsoleCommandAttribute))).queryIdentity;
                     var keys = command.commandOptions.Keys.ToArray();
                     for (int i = 0; i < keys.Length; i++)
                     {
-                        commandList += " ["+keys[i].ToString()+"] ";
+                        commandList += " [" + keys[i].ToString() + "] ";
                     }
 
-                    commandList += "  --" + command.description;
+                    commandList += "  --" + ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).description;
 
                 }
-
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
             }
 
         }
 
-        [ConsoleCommand]
+        [ConsoleCommand("move", "Translate a game object's transform to a world point")]
         class Move : Command
         {
              public Move()
             {
-                queryIdentity = "move";
                 commandOptions.Add("transform",new CommandOption<Transform>());
                 commandOptions.Add("position", new CommandOption<Vector3>());
-                description = "Translate a game object's transform to a world point";
             }
 
             public override ConsoleOutput Logic()
@@ -110,12 +115,12 @@ namespace Console
                 //Debug.Log("transported");
                 if (trans == null)
                 {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
 
                 }
                 if (vec == null)
                 {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(vec), ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
 
                 }
                 trans.position = vec;
@@ -124,15 +129,13 @@ namespace Console
 
         }
 
-        [ConsoleCommand]
+        [ConsoleCommand("rotate", "Rotate a game object")]
         class Rotate : Command
         {
             public Rotate()
             {
-                queryIdentity = "rotate";
                 commandOptions.Add("transform", new CommandOption<Transform>());
                 commandOptions.Add("rotation", new CommandOption<Quaternion>());
-                description = "Rotate a game object";
 
             }
 
@@ -143,12 +146,12 @@ namespace Console
 
                 if (trans == null)
                 {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(trans), ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
 
                 }
                 if (quaternion == null)
                 {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong(quaternion), ConsoleOutput.OutputType.Log);
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
 
                 }
                 trans.rotation = quaternion;
@@ -157,15 +160,11 @@ namespace Console
 
         }
 
-        [ConsoleCommand]
+        [ConsoleCommand("sphere", "Instantiate a physical sphere")]
         class Sphere : Command
         {
             public Sphere()
             {
-                queryIdentity = "sphere";
-                commandOptions.Add("transform", new CommandOption<Transform>());
-                commandOptions.Add("rotation", new CommandOption<Quaternion>());
-                description = "Instantiate a physical sphere";
 
             }
 
@@ -190,5 +189,10 @@ namespace Console
             }
 
         }
+
+
+
+        #endregion
     }
+
 }
