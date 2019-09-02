@@ -232,13 +232,15 @@ namespace Console
 
         }
 
-
+        bool moveInputEnd;
         void ConsoleWindow(int windowID)
         {
 
 
+
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
             int scrollHeight = 0;
+
 
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
@@ -266,6 +268,19 @@ namespace Console
             }
             GUI.EndScrollView();
 
+            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
+            {
+                if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
+                {
+                    RestoreInput();
+                    GUI.FocusControl("consoleInputField");
+          
+
+                }
+
+
+
+            }
 
             GUI.SetNextControlName("consoleInputField");
             input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
@@ -288,18 +303,15 @@ namespace Console
                 inputHistory.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
-            {
-
-                RestoreInput();
-                GUI.FocusControl("consoleInputField");
-
-            }
+         
             if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
+                if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
+                {
+                    InputSubmit(input);
 
-                InputSubmit(input);
-               
+                }
+
             }
 
             else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
@@ -312,6 +324,12 @@ namespace Console
             {
                 GUI.FocusControl("consoleInputField");
                 submitFocusTrigger = false;
+            }
+
+            if (moveInputEnd)
+            {
+                moveInputEnd = false;
+                StartCoroutine(MoveTextEditorToEnd());
             }
         }
 
@@ -340,15 +358,48 @@ namespace Console
                 _lastPredictionQueryInput = input;
             }
             predictedCommandIdentities.Sort();
-
             int drawnFields = 0;
 
-            for (int i = 0; i < 5 && i < predictedCommandIdentities.Count; i++)
+            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyUp)
             {
-                
-                GUI.Button(new Rect(20, windowRect.height -95 -((0 - i  +1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction"));
+                predictionSelectionState++;
+
+            }
+            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
+            {
+                predictionSelectionState--;
+                if (predictionSelectionState == 0)
+                {
+                    FocusTextFieldControl("consoleInputField");
+                }
+            }
+
+            predictionSelectionState = Mathf.Clamp(predictionSelectionState, 0, predictedCommandIdentities.Count);
+
+
+            for (int i = Mathf.Clamp(predictionSelectionState - 5,0,128); i < Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 5 && i < predictedCommandIdentities.Count; i++) { 
+                GUI.SetNextControlName("predictedCommand"+i);
+                if(GUI.Button(new Rect(20, windowRect.height -95 -((0 - i + Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction")))
+                {
+                    WriteLine(predictedCommandIdentities[i]);
+                }
                 drawnFields++;
             }
+
+            
+
+            if (predictionSelectionState!= 0)
+            {
+                GUI.FocusControl("predictedCommand"+(predictionSelectionState - 1).ToString());
+               
+            }
+
+        }
+
+        void FocusTextFieldControl(string control)//Focus on text end move to end
+        {
+            GUI.FocusControl(control);
+            moveInputEnd = true;
         }
 
 
@@ -449,7 +500,12 @@ namespace Console
         }
 
 
+        public IEnumerator MoveTextEditorToEnd()
+        {
+            yield return new WaitForEndOfFrame();
+            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).SelectNone();
+            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).MoveTextEnd();
+        }
 
-       
     }
 }
