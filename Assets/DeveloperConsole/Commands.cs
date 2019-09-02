@@ -83,14 +83,14 @@ namespace Console
 
                 foreach (Command command in Commands.Instance.GetCommands())
                 {
-                    commandList = commandList + "\n -" + ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(),typeof(ConsoleCommandAttribute))).queryIdentity;
+                    commandList = commandList + "\n -" + command.GetQueryIdentity();
                     var keys = command.commandOptions.Keys.ToArray();
                     for (int i = 0; i < keys.Length; i++)
                     {
                         commandList += " [" + keys[i].ToString() + "] ";
                     }
 
-                    commandList += "  --" + ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).description;
+                    commandList += "  --" + command.GetDescription();
 
                 }
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
@@ -128,6 +128,69 @@ namespace Console
             }
 
         }
+
+        [ConsoleCommand("moove", "Translate a game object's transform to a world point")]
+        class Moove : Command
+        {
+            public Moove()
+            {
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("position", new CommandOption<Vector3>());
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
+                var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
+
+                //Debug.Log("transported");
+                if (trans == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
+
+                }
+                if (vec == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
+
+                }
+                trans.position = vec;
+                return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString(), ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
+        [ConsoleCommand("moorove", "Translate a game object's transform to a world point")]
+        class Moorove : Command
+        {
+            public Moorove()
+            {
+                commandOptions.Add("transform", new CommandOption<Transform>());
+                commandOptions.Add("position", new CommandOption<Vector3>());
+            }
+
+            public override ConsoleOutput Logic()
+            {
+                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
+                var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
+
+                //Debug.Log("transported");
+                if (trans == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
+
+                }
+                if (vec == null)
+                {
+                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
+
+                }
+                trans.position = vec;
+                return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString(), ConsoleOutput.OutputType.Log);
+            }
+
+        }
+
 
         [ConsoleCommand("rotate", "Rotate a game object")]
         class Rotate : Command

@@ -48,7 +48,7 @@ namespace Console
         public void InputSubmit(string _input)
         {
             _input.Trim();
-            WriteLine("> " + _input);
+            WriteLine("} " + _input);
             InputQuery(_input);
             inputHistory.Add(_input);
             input = "";
@@ -132,8 +132,6 @@ namespace Console
             var output = command.Logic(); //Execute the command and get output
             Write(output);
         }
-
-
 
         public static bool WriteLine(string input)
         {
@@ -230,13 +228,18 @@ namespace Console
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
             }
 
+    
+
         }
+
+
         void ConsoleWindow(int windowID)
         {
 
 
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
             int scrollHeight = 0;
+
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
 
@@ -266,12 +269,18 @@ namespace Console
 
             GUI.SetNextControlName("consoleInputField");
             input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
-
-
-            if (GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
+            if (!String.IsNullOrEmpty(input))
             {
-                InputSubmit(input);
-                scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 40);
+                CommandPredictionQuery();
+            }
+            if ( GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
+            {
+                if (!String.IsNullOrEmpty(input))
+                {
+                    InputSubmit(input);
+                    scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 40);
+                }
+               
             }
             if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
             {
@@ -279,7 +288,7 @@ namespace Console
                 inputHistory.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyUp)
+            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
             {
 
                 RestoreInput();
@@ -303,6 +312,42 @@ namespace Console
             {
                 GUI.FocusControl("consoleInputField");
                 submitFocusTrigger = false;
+            }
+        }
+
+
+        int predictionSelectionState = 0;
+        string _lastPredictionQueryInput;
+        List<string> predictedCommandIdentities = new List<string>();
+
+        public void CommandPredictionQuery() //Predict commands and print them
+        {
+            if (_lastPredictionQueryInput != input) {
+                predictedCommandIdentities.Clear();
+                foreach (Command command in commands.GetCommands())//Check every command and compare them to input
+                {
+                    if (input.Length <= command.GetQueryIdentity().Length)
+                    {
+                        if (command.GetQueryIdentity().Substring(0, input.Length) == input)
+                        {
+                            Debug.Log(command.GetQueryIdentity());
+
+                            predictedCommandIdentities.Add(command.GetQueryIdentity());
+                        }
+                    }
+
+                }
+                _lastPredictionQueryInput = input;
+            }
+            predictedCommandIdentities.Sort();
+
+            int drawnFields = 0;
+
+            for (int i = 0; i < 5 && i < predictedCommandIdentities.Count; i++)
+            {
+                
+                GUI.Button(new Rect(20, windowRect.height -95 -((0 - i  +1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction"));
+                drawnFields++;
             }
         }
 
@@ -402,6 +447,8 @@ namespace Console
             }
             return _inputParams.ToArray();
         }
+
+
 
        
     }

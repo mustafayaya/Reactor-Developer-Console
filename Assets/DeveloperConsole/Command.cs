@@ -36,6 +36,14 @@ namespace Console {
             return new ConsoleOutput("", ConsoleOutput.OutputType.Log);
         }
 
+        public string GetDescription()
+        {
+           return ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(ConsoleCommandAttribute))).description;
+        }
+        public string GetQueryIdentity()
+        {
+            return ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity;
+        }
     }
 
     public abstract class CommandOption
