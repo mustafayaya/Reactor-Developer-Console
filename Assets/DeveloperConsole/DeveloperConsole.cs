@@ -254,6 +254,13 @@ namespace Console
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
 
+            GUI.Button(new Rect(10, 4, 10, 10),"",skin.GetStyle("roundButton"));
+
+            GUI.Button(new Rect(25, 4, 10, 10), "", skin.GetStyle("roundButton"));
+            GUI.Button(new Rect(40, 4, 10, 10), "", skin.GetStyle("roundButton"));
+            GUI.Button(new Rect(55, 4, 10, 10), "", skin.GetStyle("roundButton"));
+
+
             foreach (ConsoleOutput c in consoleOutputs)
             {
                 scrollHeight += c.lines * lineSpacing;
