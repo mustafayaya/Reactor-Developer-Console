@@ -284,7 +284,7 @@ namespace Console
                 if (GUI.GetNameOfFocusedControl() == "consoleInputField")
                 {
                     RestoreInput();
-                    FocusOnInputField(true);
+                    FocusOnInputField(false);
                 }
             }
 
