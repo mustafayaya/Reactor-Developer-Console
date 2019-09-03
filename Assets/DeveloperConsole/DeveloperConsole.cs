@@ -29,7 +29,7 @@ namespace Console
         List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();
         private Vector2 scrollPosition = Vector2.zero;
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
-        string input = "Command here";
+        string input = "help";
 
         public static DeveloperConsole Instance
         {
@@ -43,6 +43,14 @@ namespace Console
         {
             commands = new Commands();
             _instance = this;
+        }
+
+        public void Update()
+        {
+            if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
+            {
+                inputFocusTrigger = false;
+            }
         }
 
         public void InputSubmit(string _input)
@@ -276,13 +284,8 @@ namespace Console
                 if (GUI.GetNameOfFocusedControl() == "consoleInputField")
                 {
                     RestoreInput();
-                    GUI.FocusControl("consoleInputField");
-
-
+                    FocusOnInputField(true);
                 }
-
-
-
             }
 
 
@@ -306,7 +309,11 @@ namespace Console
             {
                 CommandPredictionQuery();
             }
-
+            if (inputFocusTrigger)
+            {
+                FocusOnInputField(false);
+                
+            }
             if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp )
             {
                 
@@ -350,7 +357,7 @@ namespace Console
                 GUI.FocusControl("consoleInputField");
 
             }
-           
+  
         }
 
 
@@ -390,7 +397,7 @@ namespace Console
                 predictionSelectionState--;
                 if (predictionSelectionState == 0)
                 {
-                    FocusOnInputField();
+                    FocusOnInputField(false);
 
                 }
             }
@@ -402,7 +409,7 @@ namespace Console
                 GUI.SetNextControlName("predictedCommand"+i);
                 if(GUI.Button(new Rect(20, windowRect.height -95 -((0 - i + Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction")))
                 {
-                    FocusOnInputField();
+                    FocusOnInputField(true);
                     input = (predictedCommandIdentities[i]);
 
                 }
@@ -419,14 +426,18 @@ namespace Console
 
         }
 
+        bool inputFocusTrigger;
 
-        public void FocusOnInputField()
+        public void FocusOnInputField(bool blockInput)
         {
-            inputFocusTrigger = true;
+            if (blockInput)//If enter gets pressed, it can trigger submit. This trigger blocks unnecessary submissions
+            {
+                inputFocusTrigger = true;
+
+            }
             GUI.FocusControl("consoleInputField");
             StartCoroutine(FocusOnInputFieldAfterFrame());
         }
-        bool inputFocusTrigger;
         IEnumerator FocusOnInputFieldAfterFrame()
         {
             yield return new WaitForEndOfFrame();
