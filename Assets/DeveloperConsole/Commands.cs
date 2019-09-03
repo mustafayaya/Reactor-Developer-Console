@@ -91,7 +91,6 @@ namespace Console
                     }
 
                     commandList += "  --" + command.GetDescription();
-
                 }
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.Log);
             }

@@ -59,6 +59,7 @@
      <Compile Include="Assets\DeveloperConsole\Commands.cs" />
      <Compile Include="Assets\DeveloperConsole\ConsoleUtility.cs" />
      <Compile Include="Assets\DeveloperConsole\DeveloperConsole.cs" />
+     <Compile Include="Assets\ShowSkin.cs" />
  <Reference Include="Unity.Timeline.Editor">
  <HintPath>C:/Users/Mustafa/Documents/Projects/Unity-Developer-Console/Library/ScriptAssemblies/Unity.Timeline.Editor.dll</HintPath>
  </Reference>

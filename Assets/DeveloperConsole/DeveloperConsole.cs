@@ -48,10 +48,11 @@ namespace Console
         public void InputSubmit(string _input)
         {
             _input.Trim();
-            WriteLine("} " + _input);
+            WriteLine("} " + _input + "\n");
             InputQuery(_input);
             inputHistory.Add(_input);
             input = "";
+            _historyState = -1;
             submitFocusTrigger = true;
         }
 
@@ -221,6 +222,7 @@ namespace Console
 
         public List<string> inputHistory = new List<string>();
         bool submitFocusTrigger;
+
         void OnGUI()
         {
             if (active)
@@ -235,12 +237,11 @@ namespace Console
         bool moveInputEnd;
         void ConsoleWindow(int windowID)
         {
-
-
+         
 
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
             int scrollHeight = 0;
-
+            GUI.SetNextControlName("outputBox");
 
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
 
@@ -268,13 +269,15 @@ namespace Console
             }
             GUI.EndScrollView();
 
+
+
             if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
             {
-                if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
+                if (GUI.GetNameOfFocusedControl() == "consoleInputField")
                 {
                     RestoreInput();
                     GUI.FocusControl("consoleInputField");
-          
+
 
                 }
 
@@ -282,12 +285,12 @@ namespace Console
 
             }
 
+
             GUI.SetNextControlName("consoleInputField");
             input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
-            if (!String.IsNullOrEmpty(input))
-            {
-                CommandPredictionQuery();
-            }
+
+            GUI.SetNextControlName("submitButton");
+
             if ( GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
             {
                 if (!String.IsNullOrEmpty(input))
@@ -297,24 +300,41 @@ namespace Console
                 }
                
             }
+
+
+            if (!String.IsNullOrEmpty(input) && GUI.GetNameOfFocusedControl() != "")
+            {
+                CommandPredictionQuery();
+            }
+
+            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp )
+            {
+                
+                if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
+                {
+                    if (inputFocusTrigger)
+                    {
+                        inputFocusTrigger = false;
+                    }
+                    else
+                    {
+                        InputSubmit(input);
+
+                    }
+
+                }
+
+            }
+            GUI.SetNextControlName("clearButton");
+
             if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
             {
                 consoleOutputs.Clear();
                 inputHistory.Clear();
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
-         
-            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
-            {
-                if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
-                {
-                    InputSubmit(input);
 
-                }
-
-            }
-
-            else if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return)
+            if (String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
 
                 GUI.FocusControl("consoleInputField");
@@ -325,12 +345,12 @@ namespace Console
                 GUI.FocusControl("consoleInputField");
                 submitFocusTrigger = false;
             }
-
-            if (moveInputEnd)
+            if (GUI.GetNameOfFocusedControl() == "clearButton")
             {
-                moveInputEnd = false;
-                StartCoroutine(MoveTextEditorToEnd());
+                GUI.FocusControl("consoleInputField");
+
             }
+           
         }
 
 
@@ -344,7 +364,7 @@ namespace Console
                 predictedCommandIdentities.Clear();
                 foreach (Command command in commands.GetCommands())//Check every command and compare them to input
                 {
-                    if (input.Length <= command.GetQueryIdentity().Length)
+                    if (input.Length < command.GetQueryIdentity().Length)
                     {
                         if (command.GetQueryIdentity().Substring(0, input.Length) == input)
                         {
@@ -370,7 +390,8 @@ namespace Console
                 predictionSelectionState--;
                 if (predictionSelectionState == 0)
                 {
-                    FocusTextFieldControl("consoleInputField");
+                    FocusOnInputField();
+
                 }
             }
 
@@ -381,7 +402,9 @@ namespace Console
                 GUI.SetNextControlName("predictedCommand"+i);
                 if(GUI.Button(new Rect(20, windowRect.height -95 -((0 - i + Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction")))
                 {
-                    WriteLine(predictedCommandIdentities[i]);
+                    FocusOnInputField();
+                    input = (predictedCommandIdentities[i]);
+
                 }
                 drawnFields++;
             }
@@ -396,10 +419,19 @@ namespace Console
 
         }
 
-        void FocusTextFieldControl(string control)//Focus on text end move to end
+
+        public void FocusOnInputField()
         {
-            GUI.FocusControl(control);
-            moveInputEnd = true;
+            inputFocusTrigger = true;
+            GUI.FocusControl("consoleInputField");
+            StartCoroutine(FocusOnInputFieldAfterFrame());
+        }
+        bool inputFocusTrigger;
+        IEnumerator FocusOnInputFieldAfterFrame()
+        {
+            yield return new WaitForEndOfFrame();
+            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).SelectNone();
+            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).MoveTextEnd();
         }
 
 
@@ -407,30 +439,27 @@ namespace Console
         string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
         {
             style.font.RequestCharactersInTexture(consoleOutput.output, style.fontSize, style.fontStyle);
-            int _labelWidth = 0;
 
-            foreach (char c in consoleOutput.output.ToCharArray())
+            var outputLines = consoleOutput.output.Split('\n');
+
+            int lines = 0;
+            foreach (string line in outputLines)
             {
-                CharacterInfo characterInfo;
-                style.font.GetCharacterInfo(c, out characterInfo, style.fontSize);
-                _labelWidth += (int)characterInfo.width;
+                int _labelWidth = 0;
+
+                var charArray = line.ToCharArray();
+                foreach (char c in charArray)
+                {
+                    CharacterInfo characterInfo;
+                    style.font.GetCharacterInfo(c, out characterInfo, style.fontSize);
+                    _labelWidth += (int)characterInfo.width;
+                }
+                lines += (int)Mathf.Clamp(Mathf.Floor(_labelWidth / position.width), 0, 128);
             }
 
-            int lines = (int)Mathf.Clamp(Mathf.Floor(_labelWidth / position.width), 1, 128);
-            if (lines != 1)//If there is more than one line, fix the spacing bug with adding more lines.
-            {
-                if (lines == 2)
-                {
-                    lines += 1;
-                }
-                else
-                {
-                    lines += 2;
-                }
-            }
-            var stringLines = consoleOutput.output.Split('\n').Length - lines + 1; //Count the lines
-            lines += stringLines;
+            lines += outputLines.Count();
             consoleOutput.lines = lines;
+
             switch (consoleOutput.outputType)
             {
                 case ConsoleOutput.OutputType.Log:
@@ -499,13 +528,6 @@ namespace Console
             return _inputParams.ToArray();
         }
 
-
-        public IEnumerator MoveTextEditorToEnd()
-        {
-            yield return new WaitForEndOfFrame();
-            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).SelectNone();
-            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).MoveTextEnd();
-        }
 
     }
 }
