@@ -10,6 +10,7 @@ namespace Console
     public class ConsoleOutput
     {
         public string output;
+        public string dateTime;
         public OutputType outputType;
 
         public int lines;
@@ -26,8 +27,8 @@ namespace Console
         public ConsoleOutput(string entry, OutputType type)
         {
             var src = DateTime.Now;
-            string dateTimeInformation = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
-            output = dateTimeInformation + entry;
+            dateTime = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
+            output = entry;
             outputType = type;
         }
 
@@ -36,20 +37,15 @@ namespace Console
             var src = DateTime.Now;
             if (startsWithTime)
             {
-                string dateTimeInformation = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
-                output = dateTimeInformation + entry;
-            }
-            else
-            {
-
-                output = entry;
+                dateTime = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
             }
 
+            output = entry;
             outputType = type;
         }
 
-      
     }
+
     public static class Utility
     {
         public static bool GetVector3FromString(string data, out Vector3 result)

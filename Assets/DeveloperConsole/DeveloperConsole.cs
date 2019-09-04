@@ -178,6 +178,7 @@ namespace Console
             var output = command.Logic(); //Execute the command and get output
             Write(output);
         }
+
         public static bool WriteUser(string input)//Write simple line
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.User, false);
@@ -246,6 +247,9 @@ namespace Console
             consoleOutputs.Add(consoleOutput);
             return true;
         }
+
+
+
 
         public object ParamQuery(Type t, string parameter)//Make query with given parameter and type
         {
@@ -339,20 +343,8 @@ namespace Console
 
             scrollPosition = GUI.BeginScrollView(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), scrollPosition, new Rect(20, 20, windowRect.width - 60, scrollHeight));
             GUI.SetNextControlName("textArea");
-
-            for (int i = 0; i < consoleOutputs.Count; i++)
-            {
-                int space = 0;
-                foreach (ConsoleOutput c in consoleOutputs)
-                {
-                    if (consoleOutputs.IndexOf(c) < i)
-                    {
-                        space += c.lines * lineSpacing;
-                    }
-                }
-                //Debug.Log("Space :" + space + "Lines : " + consoleOutputs.Count);
-                ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
-            }
+            DrawOutput();
+            
             GUI.EndScrollView();
 
 
@@ -432,6 +424,23 @@ namespace Console
             GUI.Box(new Rect(windowRect.width - 15, windowRect.height - 15, 10, 10), "", skin.GetStyle("corner"));
             
             WindowResizeHandler();
+        }
+
+        private void DrawOutput()
+        {
+            for (int i = 0; i < consoleOutputs.Count; i++)
+            {
+                int space = 0;
+                foreach (ConsoleOutput c in consoleOutputs)
+                {
+                    if (consoleOutputs.IndexOf(c) < i)
+                    {
+                        space += c.lines * lineSpacing;
+                    }
+                }
+                //Debug.Log("Space :" + space + "Lines : " + consoleOutputs.Count);
+                ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
+            }
         }
 
         bool handleClicked = false;
@@ -579,22 +588,22 @@ namespace Console
             switch (consoleOutput.outputType)
             {
                 case ConsoleOutput.OutputType.User:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = userOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = userOutputColor } });
                     break;
                 case ConsoleOutput.OutputType.System:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = systemOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = systemOutputColor } });
                     break;
                 case ConsoleOutput.OutputType.Log:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
                     break;
                 case ConsoleOutput.OutputType.Warning:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = warningOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = warningOutputColor } });
                     break;
                 case ConsoleOutput.OutputType.Error:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = errorOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = errorOutputColor } });
                     break;
                 case ConsoleOutput.OutputType.Network:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = networkOutputColor } });
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = networkOutputColor } });
                     break;
             }
             return null;
