@@ -109,5 +109,52 @@ namespace Console
             }
         }
 
+        string _lastInput;
+        string _hintText;
+
+        public void DrawCommandHints(Rect inputFieldRect,GUIStyle hintStyle)//Draw hint label on input field
+        {
+
+           DeveloperConsole developerConsole = DeveloperConsole.Instance;
+            var input = developerConsole.input;
+            if (_lastInput != input)
+            {
+                if (!String.IsNullOrEmpty(input))
+                {
+                    foreach (Command command in Commands.Instance.GetCommands())//Check every command and compare them to input
+                    {
+                        if (input == command.GetQueryIdentity())
+                        {
+                            string hintText = "";
+                            for (int i = 0; i < command.GetQueryIdentity().Length; i++)
+                            {
+                                hintText += " ";
+                            }
+                            var values = command.commandOptions.Values;
+                            foreach (CommandOption commandOption in values.ToArray())
+                            {
+                                hintText += " [" + commandOption.genericType.ToString()+"]";
+
+                            }
+                            _hintText = hintText;
+                            DeveloperConsole.WriteNetwork(hintText);
+                            _lastInput = input;
+
+                            return;
+                        }
+
+                    }
+                    _hintText = "";
+
+                }
+                _lastInput = input;
+            }
+            if (!String.IsNullOrEmpty(_hintText))
+            {
+                GUI.Label(inputFieldRect,_hintText, hintStyle);
+
+            }
+
+        }
     }
 }

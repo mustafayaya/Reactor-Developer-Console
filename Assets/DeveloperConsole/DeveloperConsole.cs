@@ -384,8 +384,9 @@ namespace Console
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);//Draw console window box
 
             GUI.SetNextControlName("consoleInputField");
-            input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
-
+            Rect inputFieldRect = new Rect(20, windowRect.height - 45, windowRect.width - 160, 25);
+            Widgets.Instance.DrawCommandHints(inputFieldRect, skin.textField);
+            input = GUI.TextField(inputFieldRect, input, inputLimit, skin.textField);
 
 
             foreach (ConsoleOutput c in consoleOutputs)
