@@ -11,27 +11,28 @@ namespace Console
     public class DeveloperConsole : MonoBehaviour
     {
 
-        public static DeveloperConsole _instance;
-
+        public static DeveloperConsole _instance;//Static singleton field
         [Header("Console Settings")]
-        public bool active = true;
-        public GUISkin skin;
-        public int lineSpacing = 20;
-        public int inputLimit = 64;
-        public Color logOutputColor = Color.white;
-        public Color warningOutputColor = Color.yellow;
-        public Color errorOutputColor = Color.red;
-        public Color networkOutputColor = Color.cyan;
-        public string submitInputAxis = "Submit";
+        public bool active = true; //If active, draw console on UI
+        public bool printLogs = true;//If active, print logs
+        public bool printWarnings = true;//If active, print warnings
+        public bool printErrors = true;//If active, print errors
+        public bool printNetwork = true;//If active, print network
+        public GUISkin skin;//If active, print network
+        public int lineSpacing = 20;//Set spacing between output lines
+        public int inputLimit = 64;//Set maximum console input limit
+        public Color logOutputColor = Color.white;//Set color of log outputs
+        public Color warningOutputColor = Color.yellow;//Set color of warning outputs
+        public Color errorOutputColor = Color.red;//Set color of error outputs
+        public Color networkOutputColor = Color.cyan;//Set color of network outputs
 
-        Commands commands;
+        Commands commands;//Private field for commands script
+        List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
+        private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
+        private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
+        string input = "help";//Describe input string for console input field. Set default text here.
 
-        List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();
-        private Vector2 scrollPosition = Vector2.zero;
-        private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
-        string input = "help";
-
-        public static DeveloperConsole Instance
+        public static DeveloperConsole Instance//Singleton
         {
             get
             {
@@ -41,8 +42,9 @@ namespace Console
 
         public void Start()
         {
-            commands = new Commands();
+            commands = Commands.Instance;//Get commands script
             _instance = this;
+            WriteWarning("Welcome");
         }
 
         public void Update()
@@ -51,13 +53,46 @@ namespace Console
             {
                 inputFocusTrigger = false;
             }
+            OutputFilterHandler();
         }
 
-        public void InputSubmit(string _input)
+        private void OutputFilterHandler()
+        {
+            if (!printErrors)
+            {
+                if (consoleOutputs.Find(x => x.outputType == ConsoleOutput.OutputType.Error) != null)
+                {
+                    consoleOutputs.RemoveAll(x => x.outputType == ConsoleOutput.OutputType.Error);
+                }
+            }
+            if (!printLogs)
+            {
+                if (consoleOutputs.Find(x => x.outputType == ConsoleOutput.OutputType.Log) != null)
+                {
+                    consoleOutputs.RemoveAll(x => x.outputType == ConsoleOutput.OutputType.Log);
+                }
+            }
+            if (!printNetwork)
+            {
+                if (consoleOutputs.Find(x => x.outputType == ConsoleOutput.OutputType.Network) != null)
+                {
+                    consoleOutputs.RemoveAll(x => x.outputType == ConsoleOutput.OutputType.Network);
+                }
+            }
+            if (!printWarnings)
+            {
+                if (consoleOutputs.Find(x => x.outputType == ConsoleOutput.OutputType.Warning) != null)
+                {
+                    consoleOutputs.RemoveAll(x => x.outputType == ConsoleOutput.OutputType.Warning);
+                }
+            }
+        }
+
+        public void SubmitInput(string _input)//Submit input string to console query
         {
             _input.Trim();
-            WriteLine("} " + _input + "\n");
-            InputQuery(_input);
+            WriteLine("} " + _input );
+            QueryInput(_input);
             inputHistory.Add(_input);
             input = "";
             _historyState = -1;
@@ -65,7 +100,7 @@ namespace Console
         }
 
 
-        public void InputQuery(string _input)
+        public void QueryInput(string _input)//Make query with given input
         {
 
             foreach (Command command in commands.GetCommands())
@@ -142,7 +177,7 @@ namespace Console
             Write(output);
         }
 
-        public static bool WriteLine(string input)
+        public static bool WriteLine(string input)//Write simple line
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
             Instance.consoleOutputs.Add(output);
@@ -178,7 +213,7 @@ namespace Console
             return true;
         }
 
-        public object ParamQuery(Type t, string parameter)
+        public object ParamQuery(Type t, string parameter)//Make query with given parameter and type
         {
 
             if (t.IsSubclassOf(typeof(Component)))
@@ -196,7 +231,7 @@ namespace Console
 
 
         int _historyState = -1;
-        public void RestoreInput()
+        public void InputHistoryHandler()//Restore saved inputs 
         {
             if (_historyState >= inputHistory.Count)
             {
@@ -233,32 +268,32 @@ namespace Console
 
         void OnGUI()
         {
-            if (active)
+            if (active)//If active, draw console window
             {
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
             }
-
-    
-
+     
         }
 
-        bool moveInputEnd;
         void ConsoleWindow(int windowID)
         {
-         
 
-            GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));
+
+
+            printLogs = GUI.Toggle(new Rect(10, 4, 10, 10), printLogs, "", skin.GetStyle("logButton"));
+            printWarnings = GUI.Toggle(new Rect(25, 4, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
+            printErrors = GUI.Toggle(new Rect(40, 4, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
+            printNetwork = GUI.Toggle(new Rect(55, 4, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
+
+
+
+            GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));//Draw drag handle of window
             int scrollHeight = 0;
             GUI.SetNextControlName("outputBox");
 
-            GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);
+            GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);//Draw console window box
 
 
-            GUI.Button(new Rect(10, 4, 10, 10),"",skin.GetStyle("roundButton"));
-
-            GUI.Button(new Rect(25, 4, 10, 10), "", skin.GetStyle("roundButton"));
-            GUI.Button(new Rect(40, 4, 10, 10), "", skin.GetStyle("roundButton"));
-            GUI.Button(new Rect(55, 4, 10, 10), "", skin.GetStyle("roundButton"));
 
 
             foreach (ConsoleOutput c in consoleOutputs)
@@ -290,7 +325,7 @@ namespace Console
             {
                 if (GUI.GetNameOfFocusedControl() == "consoleInputField")
                 {
-                    RestoreInput();
+                    InputHistoryHandler();
                     FocusOnInputField(false);
                 }
             }
@@ -305,7 +340,7 @@ namespace Console
             {
                 if (!String.IsNullOrEmpty(input))
                 {
-                    InputSubmit(input);
+                    SubmitInput(input);
                     scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 40);
                 }
                
@@ -332,7 +367,7 @@ namespace Console
                     }
                     else
                     {
-                        InputSubmit(input);
+                        SubmitInput(input);
 
                     }
 
@@ -457,8 +492,8 @@ namespace Console
         string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
         {
             style.font.RequestCharactersInTexture(consoleOutput.output, style.fontSize, style.fontStyle);
-
-            var outputLines = consoleOutput.output.Split('\n');
+            var output = consoleOutput.output + "\n";
+            var outputLines = output.Split('\n');
 
             int lines = 0;
             foreach (string line in outputLines)
@@ -477,7 +512,6 @@ namespace Console
 
             lines += outputLines.Count();
             consoleOutput.lines = lines;
-
             switch (consoleOutput.outputType)
             {
                 case ConsoleOutput.OutputType.Log:
