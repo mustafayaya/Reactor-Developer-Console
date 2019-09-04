@@ -21,7 +21,9 @@ namespace Console
         public GUISkin skin;//If active, print network
         public int lineSpacing = 20;//Set spacing between output lines
         public int inputLimit = 64;//Set maximum console input limit
-        public Color logOutputColor = Color.white;//Set color of log outputs
+        public Color userOutputColor = Color.HSVToRGB(0,0,0.75f);//Set color of user outputs
+        public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.80f);//Set color of system outputs
+        public Color logOutputColor = Color.HSVToRGB(0, 0, 0.90f);//Set color of log outputs
         public Color warningOutputColor = Color.yellow;//Set color of warning outputs
         public Color errorOutputColor = Color.red;//Set color of error outputs
         public Color networkOutputColor = Color.cyan;//Set color of network outputs
@@ -44,7 +46,7 @@ namespace Console
         {
             commands = Commands.Instance;//Get commands script
             _instance = this;
-            WriteWarning("Welcome");
+            WriteSystem("Welcome");
         }
 
         public void Update()
@@ -91,7 +93,7 @@ namespace Console
         public void SubmitInput(string _input)//Submit input string to console query
         {
             _input.Trim();
-            WriteLine("} " + _input );
+            WriteUser("} " + _input );
             QueryInput(_input);
             inputHistory.Add(_input);
             input = "";
@@ -127,7 +129,7 @@ namespace Console
                                 }
                                 else
                                 {
-                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
                                 }
 
@@ -140,7 +142,7 @@ namespace Console
                                 }
                                 else
                                 {
-                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
                                 }
 
@@ -154,7 +156,7 @@ namespace Console
                                 }
                                 else
                                 {
-                                    WriteLog("Parameter [" + keys[i] + "] is given wrong.");
+                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
                                 }
 
@@ -168,7 +170,7 @@ namespace Console
                 }
 
             }
-            WriteLog("There is no command such as '" + _input + "'");
+            WriteSystem("There is no command such as '" + _input + "'");
         }
 
         public void Execute(Command command)
@@ -176,7 +178,18 @@ namespace Console
             var output = command.Logic(); //Execute the command and get output
             Write(output);
         }
-
+        public static bool WriteUser(string input)//Write simple line
+        {
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.User, false);
+            Instance.consoleOutputs.Add(output);
+            return true;
+        }
+        public static bool WriteSystem(string input)//Write simple line
+        {
+            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.System);
+            Instance.consoleOutputs.Add(output);
+            return true;
+        }
         public static bool WriteLine(string input)//Write simple line
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
@@ -189,6 +202,7 @@ namespace Console
             Instance.consoleOutputs.Add(output);
             return true;
         }
+
         public static bool WriteWarning(string input)
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
@@ -514,6 +528,12 @@ namespace Console
             consoleOutput.lines = lines;
             switch (consoleOutput.outputType)
             {
+                case ConsoleOutput.OutputType.User:
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = userOutputColor } });
+                    break;
+                case ConsoleOutput.OutputType.System:
+                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = systemOutputColor } });
+                    break;
                 case ConsoleOutput.OutputType.Log:
                     GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
                     break;

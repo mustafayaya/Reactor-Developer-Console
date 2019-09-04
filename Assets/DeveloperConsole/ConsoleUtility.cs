@@ -16,6 +16,8 @@ namespace Console
 
         public enum OutputType
         {
+            User,
+            System,
             Log,
             Error,
             Warning,
