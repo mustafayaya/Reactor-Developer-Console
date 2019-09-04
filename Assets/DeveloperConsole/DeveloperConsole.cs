@@ -192,12 +192,20 @@ namespace Console
         }
         public static bool WriteLine(string input)//Write simple line
         {
+            if (!Instance.printLogs)
+            {
+                return false;
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
             Instance.consoleOutputs.Add(output);
             return true;
         }
         public static bool WriteLog(string input)
         {
+            if (!Instance.printLogs)
+            {
+                return false;
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
             Instance.consoleOutputs.Add(output);
             return true;
@@ -205,18 +213,30 @@ namespace Console
 
         public static bool WriteWarning(string input)
         {
+            if (!Instance.printWarnings)
+            {
+                return false;
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
             Instance.consoleOutputs.Add(output);
             return true;
         }
         public static bool WriteError(string input)
         {
+            if (!Instance.printErrors)
+            {
+                return false;
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Error);
             Instance.consoleOutputs.Add(output);
             return true;
         }
         public bool WriteNetwork(string input)
         {
+            if (!Instance.printNetwork)
+            {
+                return false;
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Network);
             consoleOutputs.Add(output);
             return true;
@@ -307,6 +327,8 @@ namespace Console
 
             GUI.Box(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), "", skin.box);//Draw console window box
 
+            GUI.SetNextControlName("consoleInputField");
+            input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
 
 
 
@@ -345,8 +367,6 @@ namespace Console
             }
 
 
-            GUI.SetNextControlName("consoleInputField");
-            input = GUI.TextField(new Rect(20, windowRect.height - 45, windowRect.width - 160, 25), input, inputLimit, skin.textField);
 
             GUI.SetNextControlName("submitButton");
 
@@ -408,12 +428,42 @@ namespace Console
                 GUI.FocusControl("consoleInputField");
                 submitFocusTrigger = false;
             }
-            if (GUI.GetNameOfFocusedControl() == "clearButton")
-            {
-                GUI.FocusControl("consoleInputField");
 
+            GUI.Box(new Rect(windowRect.width - 15, windowRect.height - 15, 10, 10), "", skin.GetStyle("corner"));
+            
+            WindowResizeHandler();
+        }
+
+        bool handleClicked = false;
+        Vector3 clickedPosition;
+        Rect _window;
+        private void WindowResizeHandler()
+        {
+            var mousePos = Input.mousePosition;
+            mousePos.y = Screen.height - mousePos.y;    // Convert to GUI coords
+            var windowHandle = new Rect(windowRect.x + windowRect.width - 20, windowRect.y + windowRect.height - 20, 20, 20);
+                // If clicked on window resize widget
+            if (Input.GetMouseButtonDown(0) && windowHandle.Contains(mousePos)) {
+                handleClicked = true;
+                clickedPosition = mousePos;
+                _window = windowRect;
             }
-  
+
+            if (handleClicked)
+            {
+                // Resize window by dragging
+                if (Input.GetMouseButton(0))
+                {
+                WriteError("moooo");
+                    windowRect.width = Mathf.Clamp(_window.width + (mousePos.x - clickedPosition.x), 300, Screen.width);
+                    windowRect.height = Mathf.Clamp(_window.height + (mousePos.y - clickedPosition.y), 200, Screen.height);
+                }
+                // Finish resizing window
+                if (Input.GetMouseButtonUp(0))
+                {
+                    handleClicked = false;
+                }
+            }
         }
 
 
@@ -421,7 +471,7 @@ namespace Console
         string _lastPredictionQueryInput;
         List<string> predictedCommandIdentities = new List<string>();
 
-        public void CommandPredictionQuery() //Predict commands and print them
+        private void CommandPredictionQuery() //Predict commands and print them
         {
             if (_lastPredictionQueryInput != input) {
                 predictedCommandIdentities.Clear();
@@ -484,7 +534,7 @@ namespace Console
 
         bool inputFocusTrigger;
 
-        public void FocusOnInputField(bool blockInput)
+        private void FocusOnInputField(bool blockInput)
         {
             if (blockInput)//If enter gets pressed, it can trigger submit. This trigger blocks unnecessary submissions
             {
