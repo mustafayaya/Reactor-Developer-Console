@@ -10,14 +10,20 @@ namespace Console
 {
     public class DeveloperConsole : MonoBehaviour
     {
-
-        public static DeveloperConsole _instance;//Static singleton field
-        [Header("Console Settings")]
+        private static DeveloperConsole _instance;
+       [Header("Console Settings")]
         public bool active = true; //If active, draw console on UI
         public bool printLogs = true;//If active, print logs
         public bool printWarnings = true;//If active, print warnings
         public bool printErrors = true;//If active, print errors
         public bool printNetwork = true;//If active, print network
+        private bool _predictions;
+
+        public bool predictions//If active, enable prediction widget
+        {
+            set { _predictions = value; Widgets.Instance.enabled = value; }
+            get { return _predictions; }
+        }
         public GUISkin skin;//If active, print network
         public int lineSpacing = 20;//Set spacing between output lines
         public int inputLimit = 64;//Set maximum console input limit
@@ -27,17 +33,20 @@ namespace Console
         public Color warningOutputColor = Color.yellow;//Set color of warning outputs
         public Color errorOutputColor = Color.red;//Set color of error outputs
         public Color networkOutputColor = Color.cyan;//Set color of network outputs
-
         Commands commands;//Private field for commands script
         List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
         private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
-        string input = "help";//Describe input string for console input field. Set default text here.
+        public string input = "help";//Describe input string for console input field. Set default text here.
 
         public static DeveloperConsole Instance//Singleton
         {
             get
             {
+                if (_instance)
+                {
+                    return _instance;
+                }
                 return FindObjectOfType<DeveloperConsole>();
             }
         }
@@ -45,8 +54,8 @@ namespace Console
         public void Start()
         {
             commands = Commands.Instance;//Get commands script
-            _instance = this;
             WriteSystem("Welcome");
+       
         }
 
         public void Update()
@@ -56,6 +65,7 @@ namespace Console
                 inputFocusTrigger = false;
             }
             OutputFilterHandler();
+            predictions = true;
         }
 
         private void OutputFilterHandler()
@@ -197,6 +207,14 @@ namespace Console
             {
                 return false;
             }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if(Instance.consoleOutputs.Last().output == input)
+                {
+                    return false;
+
+                }
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
             Instance.consoleOutputs.Add(output);
             return true;
@@ -206,6 +224,14 @@ namespace Console
             if (!Instance.printLogs)
             {
                 return false;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input)
+                {
+                    return false;
+
+                }
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
             Instance.consoleOutputs.Add(output);
@@ -218,6 +244,14 @@ namespace Console
             {
                 return false;
             }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input)
+                {
+                    return false;
+
+                }
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
             Instance.consoleOutputs.Add(output);
             return true;
@@ -228,18 +262,34 @@ namespace Console
             {
                 return false;
             }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input)
+                {
+                    return false;
+
+                }
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Error);
             Instance.consoleOutputs.Add(output);
             return true;
         }
-        public bool WriteNetwork(string input)
+        public static bool WriteNetwork(string input)
         {
             if (!Instance.printNetwork)
             {
                 return false;
             }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input)
+                {
+                    return false;
+
+                }
+            }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Network);
-            consoleOutputs.Add(output);
+            Instance.consoleOutputs.Add(output);
             return true;
         }
         public bool Write(ConsoleOutput consoleOutput)
@@ -308,6 +358,8 @@ namespace Console
         {
             if (active)//If active, draw console window
             {
+                GUI.depth = 1;
+
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
             }
      
@@ -317,13 +369,13 @@ namespace Console
         {
 
 
-
             printLogs = GUI.Toggle(new Rect(10, 4, 10, 10), printLogs, "", skin.GetStyle("logButton"));
             printWarnings = GUI.Toggle(new Rect(25, 4, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
             printErrors = GUI.Toggle(new Rect(40, 4, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
             printNetwork = GUI.Toggle(new Rect(55, 4, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
 
 
+            GUI.SetNextControlName("dragHandle");
 
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));//Draw drag handle of window
             int scrollHeight = 0;
@@ -349,8 +401,9 @@ namespace Console
 
 
 
-            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
+            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyDown)
             {
+                WriteError("moooooo");
                 if (GUI.GetNameOfFocusedControl() == "consoleInputField")
                 {
                     InputHistoryHandler();
@@ -372,11 +425,6 @@ namespace Console
                
             }
 
-
-            if (!String.IsNullOrEmpty(input) && GUI.GetNameOfFocusedControl() != "")
-            {
-                CommandPredictionQuery();
-            }
             if (inputFocusTrigger)
             {
                 FocusOnInputField(false);
@@ -476,74 +524,11 @@ namespace Console
         }
 
 
-        int predictionSelectionState = 0;
-        string _lastPredictionQueryInput;
-        List<string> predictedCommandIdentities = new List<string>();
-
-        private void CommandPredictionQuery() //Predict commands and print them
-        {
-            if (_lastPredictionQueryInput != input) {
-                predictedCommandIdentities.Clear();
-                foreach (Command command in commands.GetCommands())//Check every command and compare them to input
-                {
-                    if (input.Length < command.GetQueryIdentity().Length)
-                    {
-                        if (command.GetQueryIdentity().Substring(0, input.Length) == input)
-                        {
-                            Debug.Log(command.GetQueryIdentity());
-
-                            predictedCommandIdentities.Add(command.GetQueryIdentity());
-                        }
-                    }
-
-                }
-                _lastPredictionQueryInput = input;
-            }
-            predictedCommandIdentities.Sort();
-            int drawnFields = 0;
-
-            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyUp)
-            {
-                predictionSelectionState++;
-
-            }
-            if (Event.current.keyCode == KeyCode.DownArrow && Event.current.type == EventType.KeyUp)
-            {
-                predictionSelectionState--;
-                if (predictionSelectionState == 0)
-                {
-                    FocusOnInputField(false);
-
-                }
-            }
-
-            predictionSelectionState = Mathf.Clamp(predictionSelectionState, 0, predictedCommandIdentities.Count);
-
-
-            for (int i = Mathf.Clamp(predictionSelectionState - 5,0,128); i < Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 5 && i < predictedCommandIdentities.Count; i++) { 
-                GUI.SetNextControlName("predictedCommand"+i);
-                if(GUI.Button(new Rect(20, windowRect.height -95 -((0 - i + Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 1) * -25 ), windowRect.width /4, 25),predictedCommandIdentities[i], skin.GetStyle("prediction")))
-                {
-                    FocusOnInputField(true);
-                    input = (predictedCommandIdentities[i]);
-
-                }
-                drawnFields++;
-            }
-
-            
-
-            if (predictionSelectionState!= 0)
-            {
-                GUI.FocusControl("predictedCommand"+(predictionSelectionState - 1).ToString());
-               
-            }
-
-        }
+     
 
         bool inputFocusTrigger;
 
-        private void FocusOnInputField(bool blockInput)
+        public void FocusOnInputField(bool blockInput)
         {
             if (blockInput)//If enter gets pressed, it can trigger submit. This trigger blocks unnecessary submissions
             {
@@ -659,6 +644,9 @@ namespace Console
             return _inputParams.ToArray();
         }
 
-
+        public Rect GetWindowRect()
+        {
+            return windowRect;
+        }
     }
 }
