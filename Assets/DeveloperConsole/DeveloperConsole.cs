@@ -60,12 +60,16 @@ namespace Console
 
         public void Update()
         {
-            if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
+           
+            if (active)
             {
-                inputFocusTrigger = false;
+                if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
+                {
+                    inputFocusTrigger = false;
+                }
+                   OutputFilterHandler();
+                OutputManager();
             }
-            OutputFilterHandler();
-            predictions = true;
         }
 
         private void OutputFilterHandler()
@@ -367,14 +371,12 @@ namespace Console
 
         void ConsoleWindow(int windowID)
         {
-
-
             printLogs = GUI.Toggle(new Rect(10, 4, 10, 10), printLogs, "", skin.GetStyle("logButton"));
             printWarnings = GUI.Toggle(new Rect(25, 4, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
             printErrors = GUI.Toggle(new Rect(40, 4, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
             printNetwork = GUI.Toggle(new Rect(55, 4, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
 
-            if (GUI.Button(new Rect(windowRect.width - 20, 4, 10, 10),"X", skin.GetStyle("exitButton")))
+            if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5),"-", skin.GetStyle("exitButton")))
             {
                 active = !active;
             }
@@ -646,6 +648,18 @@ namespace Console
         public Rect GetWindowRect()
         {
             return windowRect;
+        }
+
+        private void OutputManager()//Manage console output
+        {
+            //Remove old logs for avoid performance issues & stackoverflow exception 
+            if (consoleOutputs.Count > 100)
+            {
+                for (int i = 0; i< consoleOutputs.Count- 101;i++ )
+                {
+                    consoleOutputs.Remove(consoleOutputs[i]);
+                }
+            }
         }
     }
 }

@@ -148,7 +148,7 @@ namespace Console
                 }
                 _lastInput = input;
             }
-            if (!String.IsNullOrEmpty(_hintText))
+            if (!String.IsNullOrEmpty(_hintText)&& !String.IsNullOrEmpty(input))
             {
                 GUI.Label(inputFieldRect,_hintText, hintStyle);
 
