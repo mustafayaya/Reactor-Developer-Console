@@ -137,7 +137,6 @@ namespace Console
 
                             }
                             _hintText = hintText;
-                            DeveloperConsole.WriteNetwork(hintText);
                             _lastInput = input;
 
                             return;

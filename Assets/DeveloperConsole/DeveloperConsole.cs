@@ -374,6 +374,19 @@ namespace Console
             printErrors = GUI.Toggle(new Rect(40, 4, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
             printNetwork = GUI.Toggle(new Rect(55, 4, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
 
+            if (GUI.Button(new Rect(windowRect.width - 20, 4, 10, 10),"X", skin.GetStyle("exitButton")))
+            {
+                active = !active;
+            }
+
+            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyDown)
+            {
+                if (GUI.GetNameOfFocusedControl() == "consoleInputField")
+                {
+                    InputHistoryHandler();
+                    FocusOnInputField(false);
+                }
+            }
 
             GUI.SetNextControlName("dragHandle");
 
@@ -385,7 +398,7 @@ namespace Console
 
             GUI.SetNextControlName("consoleInputField");
             Rect inputFieldRect = new Rect(20, windowRect.height - 45, windowRect.width - 160, 25);
-            Widgets.Instance.DrawCommandHints(inputFieldRect, skin.textField);
+            Widgets.Instance.DrawCommandHints(inputFieldRect, skin.GetStyle("hint"));
             input = GUI.TextField(inputFieldRect, input, inputLimit, skin.textField);
 
 
@@ -399,20 +412,6 @@ namespace Console
             DrawOutput();
             
             GUI.EndScrollView();
-
-
-
-            if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyDown)
-            {
-                WriteError("moooooo");
-                if (GUI.GetNameOfFocusedControl() == "consoleInputField")
-                {
-                    InputHistoryHandler();
-                    FocusOnInputField(false);
-                }
-            }
-
-
 
             GUI.SetNextControlName("submitButton");
 
@@ -512,7 +511,6 @@ namespace Console
                 // Resize window by dragging
                 if (Input.GetMouseButton(0))
                 {
-                WriteError("moooo");
                     windowRect.width = Mathf.Clamp(_window.width + (mousePos.x - clickedPosition.x), 300, Screen.width);
                     windowRect.height = Mathf.Clamp(_window.height + (mousePos.y - clickedPosition.y), 200, Screen.height);
                 }
