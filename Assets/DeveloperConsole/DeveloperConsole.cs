@@ -28,7 +28,7 @@ namespace Console
         public int lineSpacing = 20;//Set spacing between output lines
         public int inputLimit = 64;//Set maximum console input limit
         public Color userOutputColor = Color.HSVToRGB(0,0,0.75f);//Set color of user outputs
-        public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.80f);//Set color of system outputs
+        public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.90f);//Set color of system outputs
         public Color logOutputColor = Color.HSVToRGB(0, 0, 0.90f);//Set color of log outputs
         public Color warningOutputColor = Color.yellow;//Set color of warning outputs
         public Color errorOutputColor = Color.red;//Set color of error outputs
@@ -132,49 +132,29 @@ namespace Console
                         for (int i = 0; i < keys.Length; i++)
                         {
                             Type genericTypeArgument = command.commandOptions[keys[i]].GetType().GenericTypeArguments[0];
+                                MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
+                                MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
 
-                            if (genericTypeArgument.IsSubclassOf(typeof(Component)))
-                            {
                                 Type t = command.commandOptions[keys[i]].genericType.GetType();
-                                var query = (ParamQuery(command.commandOptions[keys[i]].genericType, _inputParams[i + 1]));
-                                if (query != null)
-                                {
-                                    command.commandOptions[keys[i]].optionParameter = query;
-                                }
-                                else
+                                 if (_inputParams.Length <= i + 1)
+                                 {
+                                     WriteSystem("Parameter [" + keys[i] + "] is not given.");
+                                return;
+
+                                  }
+                            var query = genericQuery.Invoke(this, new object[] { (_inputParams[i + 1]) });
+
+                            if (query != null)
+                                { 
+                                   command.commandOptions[keys[i]].optionParameter = query;
+
+                            }
+                            else
                                 {
                                     WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
                                 }
-
-                            }
-                            if (command.commandOptions[keys[i]] is CommandOption<Vector3>)
-                            {
-                                Vector3 query = Vector3.zero;
-                                if (Utility.GetVector3FromString(_inputParams[i + 1],out query)){
-                                    ((command.commandOptions[keys[i]]) as CommandOption<Vector3>).optionParameter = query;
-                                }
-                                else
-                                {
-                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
-                                    return;
-                                }
-
-                            }
-                            if (command.commandOptions[keys[i]] is CommandOption<Quaternion>)
-                            {
-                                var query = Quaternion.identity;
-                                if (Utility.GetQuaternionFromString(_inputParams[i + 1], out query))
-                                {
-                                    ((command.commandOptions[keys[i]]) as CommandOption<Quaternion>).optionParameter = query;
-                                }
-                                else
-                                {
-                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
-                                    return;
-                                }
-
-                            }
+                         
                         }
                         Execute(command);
                         return;
@@ -186,6 +166,8 @@ namespace Console
             }
             WriteSystem("There is no command such as '" + _input + "'");
         }
+
+
 
         public void Execute(Command command)
         {
@@ -305,19 +287,74 @@ namespace Console
 
 
 
-        public object ParamQuery(Type t, string parameter)//Make query with given parameter and type
+        public object ParamQuery<T>(string parameter)//Make query with given parameter and type
         {
-
-            if (t.IsSubclassOf(typeof(Component)))
+            if (typeof(T).IsValueType)
             {
-                Component query = null;
+                object query = null;
+                var parameters = parameter.Split(',');
+                var constructors = (typeof(T)).GetConstructors();//Get constructors of T
 
-                var go = GameObject.Find(parameter);
-                if (go != null)
-                { query = go.GetComponent(t); }
+                ConstructorInfo _constructor = null;
 
-                return query;
+                foreach (ConstructorInfo constructorInfo in constructors)//Get the possible declerations from constructors
+                {
+                   if(constructorInfo.GetParameters().Length == parameters.Length)
+                    {
+                        _constructor = constructorInfo;//Move with this decleration
+                    }
+                }
+                if (_constructor != null)
+                {
+                    var constructionsParametersList = Utility.GetConstructorParametersList(_constructor, parameters);
+                    if (constructionsParametersList != null)
+                    {
+                        query = (T)Activator.CreateInstance(typeof(T), constructionsParametersList.ToArray());
+                        return query;
+
+                    }
+                    return null;
+
+                }
+
+                return null;
+
+
             }
+            else
+            {
+                if (typeof(T).IsSubclassOf(typeof(Component)))
+                {
+                    Component query = null;
+
+                    var go = GameObject.Find(parameter);
+                    if (go != null)
+                    {
+                        query = go.GetComponent(typeof(T));
+
+                    }
+
+
+                    return query;
+                }
+                //else
+                //{
+                //    List<object> list = new List<object>();
+                //    MethodInfo method = typeof(UnityEngine.Object).GetMethod("FindObjectsOfType");
+                //    MethodInfo methodGeneric = method.MakeGenericMethod(typeof(T));
+                //    list = (List<object>)methodGeneric.Invoke(this, new object[] { });
+
+
+                //    if ()
+                //    {
+
+                //    }
+
+                //}
+            }
+
+          
+
             return null;
         }
 

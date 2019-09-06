@@ -110,7 +110,7 @@ namespace Console
             {
                 var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
                 var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
-
+                Debug.Log(vec);
                 //Debug.Log("transported");
                 if (trans == null)
                 {

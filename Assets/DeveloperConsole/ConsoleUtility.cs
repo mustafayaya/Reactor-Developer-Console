@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -172,6 +173,50 @@ namespace Console
                 }
             }
 
+        }
+
+        public static List<object> GetConstructorParametersList(ConstructorInfo constructorInfo,string[] parameters)//Check each parameter in constructor and try to fill the parameters
+        {
+            List<object> argsList = new List<object>();
+            int i = 0;
+
+            foreach (ParameterInfo parameterInfo in constructorInfo.GetParameters())
+            {
+                if (parameterInfo.ParameterType == typeof(string))
+                {
+                    argsList.Add(parameters[i]);
+                }
+                if (parameterInfo.ParameterType == typeof(int))
+                {
+                    int result = 0;
+                    if (int.TryParse(parameters[i], out result))
+                    {
+                        argsList.Add(result);
+
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+                if (parameterInfo.ParameterType == typeof(float))
+                {
+                    float result = 0;
+                    if (float.TryParse(parameters[i], out result))
+                    {
+                        argsList.Add(result);
+
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+
+               i++;
+
+            }
+            return argsList;
         }
 
 

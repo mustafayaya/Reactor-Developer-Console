@@ -54,7 +54,10 @@ namespace Console {
 
     public class CommandOption<TOption> : CommandOption
     {
-        public TOption optionParameter;
+        public TOption optionParameter
+        {
+            get { return (TOption)base.optionParameter; }
+        }
         public CommandOption()
         {
             base.genericType = typeof(TOption);
