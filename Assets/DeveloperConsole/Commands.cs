@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEditor.Compilation;
@@ -55,12 +56,12 @@ namespace Console
                 {
                     if (fieldInfo.GetCustomAttribute<CommandParameterAttribute>() != null)
                     {
-                        var commandOptionType = typeof(CommandParameter<>);
-                        var commandOptionTypeGeneric = commandOptionType.MakeGenericType(fieldInfo.FieldType);
-                        var commandOption = Activator.CreateInstance(commandOptionTypeGeneric,new object[] { });
-                        
-                        command.commandParameters.Add(fieldInfo.GetCustomAttribute<CommandParameterAttribute>().description, (CommandParameter)commandOption);
-                        
+                        var commandParameterType = typeof(CommandParameter<>);
+                        var commandParameterTypeGeneric = commandParameterType.MakeGenericType(fieldInfo.FieldType);
+                        var commandParameter = Activator.CreateInstance(commandParameterTypeGeneric, new object[] { command, fieldInfo });
+                        var commandParameterAttribute = fieldInfo.GetCustomAttribute<CommandParameterAttribute>();
+                        command.commandParameters.Add(commandParameterAttribute.description, (CommandParameter)commandParameter);
+                        commandParameterAttribute.commandParameter = (CommandParameter)commandParameter;
                     }
                 }
                 _commands.Add(command);
@@ -125,21 +126,9 @@ namespace Console
 
             public override ConsoleOutput Logic()
             {
-                var trans = (Transform)((CommandParameter)(commandParameters["transform"] as CommandParameter<Transform>)).optionParameter;
-                var vec = (commandParameters["position"] as CommandParameter<Vector3>).optionParameter;
-                //Debug.Log("transported");
-                if (trans == null)
-                {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
 
-                }
-                if (vec == null)
-                {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
-
-                }
-                trans.position = vec;
-                return new ConsoleOutput(((Transform)trans).name + " moved to " + vec.ToString() , ConsoleOutput.OutputType.Log);
+                transform.position = position;
+                return new ConsoleOutput(((Transform)transform).name + " moved to " + position.ToString() , ConsoleOutput.OutputType.Log);
             }
 
         }
@@ -159,21 +148,9 @@ namespace Console
 
             public override ConsoleOutput Logic()
             {
-                var trans = (Transform)((CommandParameter)(commandParameters["transform"] as CommandParameter<Transform>)).optionParameter;
-                var quaternion = (commandParameters["rotation"] as CommandParameter<Quaternion>).optionParameter;
 
-                if (trans == null)
-                {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Transform>(), ConsoleOutput.OutputType.Log);
-
-                }
-                if (quaternion == null)
-                {
-                    return new ConsoleOutput(Console.Utility.ParamsGivenWrong<Quaternion>(), ConsoleOutput.OutputType.Log);
-
-                }
-                trans.rotation = quaternion;
-                return new ConsoleOutput(((Transform)trans).name + " rotated to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
+                transform.rotation = rotation;
+                return new ConsoleOutput(((Transform)transform).name + " rotated to " + rotation.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }
@@ -210,6 +187,126 @@ namespace Console
 
 
 
+        [ConsoleCommand("export","Export this session to a text file")]
+        class Export : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+                var outputs = DeveloperConsole.Instance.consoleOutputs;
+                var src = DateTime.Now;
+
+                string fileName = "console-"+src.Year + "-" + src.Hour + "-" + src.Minute+".txt";
+                string fileContent = "";
+
+                foreach (ConsoleOutput consoleOutput in outputs)
+                {
+                    fileContent += consoleOutput.output + "\n";
+                }
+
+                string filePath = Directory.GetParent(Application.dataPath)+"/Logs/" + fileName;
+             
+                StreamWriter streamWriter = new StreamWriter(filePath,true);
+
+                
+                streamWriter.Write(fileContent);
+
+                streamWriter.Close();
+
+
+                return new ConsoleOutput("Log file created at '" + filePath + "'.", ConsoleOutput.OutputType.Log);
+            }
+        }
+
+        [ConsoleCommand("beep", "Play the sound associated with the Beep system event")]
+        class Beep : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                System.Media.SystemSounds.Beep.Play();
+                return new ConsoleOutput("Beeping for 6 seconds.", ConsoleOutput.OutputType.Log);
+            }
+        }
+
+        [ConsoleCommand("quit", "Exit the application")]
+        class Quit : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Application.Quit();
+                return new ConsoleOutput("Have a very safe and productive day.", ConsoleOutput.OutputType.Log);
+            }
+        }
+
+
+        [ConsoleCommand("echo", "Echo text to console.")]
+        class Echo : Command
+        {
+            [CommandParameter("string")]
+            public string echoText;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                
+                return new ConsoleOutput(echoText, ConsoleOutput.OutputType.Log);
+            }
+        }
+
+        [ConsoleCommand("fps_max", "Limit the frame rate. Set 0 for unlimited")]
+        class Fps_max : Command
+        {
+            [CommandParameter("maxFPS")]
+            public int maxFPS;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Application.targetFrameRate = maxFPS;
+                return new ConsoleOutput("Frame rate limited to " + maxFPS+" frames per second.", ConsoleOutput.OutputType.Log);
+            }
+        }
+        [ConsoleCommand("screenshot", "Save a screenshot")]
+        class screenshot : Command
+        {
+            
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var src = DateTime.Now;
+                string fileName = "screenshot-" + src.Year + "-" + src.Hour + "-" + src.Minute + ".png";
+                string filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) +"/"+fileName;
+                ScreenCapture.CaptureScreenshot(filePath);
+                return new ConsoleOutput("Screenshot saved to " + filePath + ".", ConsoleOutput.OutputType.Log);
+            }
+        }
+
+        [ConsoleCommand("loadlevel", "Load the level by given name or id")]
+        class LoadLevel : Command
+        {
+            [CommandParameter("level")]
+            public string targetLevel;
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var levelId = 0;
+                if (int.TryParse(targetLevel, out levelId))
+                {
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(levelId);
+                    return new ConsoleOutput("Loading level with id " + levelId + ".", ConsoleOutput.OutputType.Log);
+
+                }
+                
+                    UnityEngine.SceneManagement.SceneManager.LoadScene(targetLevel);
+                    return new ConsoleOutput("Loading level " + targetLevel + ".", ConsoleOutput.OutputType.Log);
+
+            }
+        }
         #endregion
     }
 

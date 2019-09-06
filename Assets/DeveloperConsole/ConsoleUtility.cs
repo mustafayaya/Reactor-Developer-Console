@@ -219,6 +219,22 @@ namespace Console
             return argsList;
         }
 
+            public static bool TryConvert(object dummy,Type targetType)
+            {
+                try
+                {
+                  Convert.ChangeType(dummy,targetType);
+
+                }
+                catch
+                {
+                    return false;
+
+                }
+                return true;
+            }
+        
+
 
     }
 

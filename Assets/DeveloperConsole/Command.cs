@@ -30,6 +30,7 @@ namespace Console {
     public class CommandParameterAttribute : Attribute
     {
         public string description;
+        public CommandParameter commandParameter;
 
 
         public CommandParameterAttribute(string _description)
@@ -60,27 +61,40 @@ namespace Console {
 
     public abstract class CommandParameter
     {
-        public object optionParameter;
+        private object value;
         public Type genericType;
+        public Command Command;//Invokable command that uses this as a parameter
+        public System.Reflection.FieldInfo fieldInfo;//field name of command linked to this parameter
+
+        public object Value
+        {
+            get { return value; }
+            set {
+                this.value = value;
+                fieldInfo.SetValue(Command, value);
+            }
+        }
+        
     }
 
     public class CommandParameter<TOption> : CommandParameter
     {
-        public TOption optionParameter
+        public TOption Value
         {
             get {
-                if (base.optionParameter == null)
+                if (base.Value == null)
                 {
                     return default;
                 }
-                return (TOption)base.optionParameter;
+                return (TOption)base.Value;
 
             }
         }
-        public CommandParameter()
+        public CommandParameter(Command parentCmmand,System.Reflection.FieldInfo fieldInfo)
         {
             base.genericType = typeof(TOption);
-            base.optionParameter = null;
+            base.Command = parentCmmand;
+            base.fieldInfo = fieldInfo;
         }
 
     }

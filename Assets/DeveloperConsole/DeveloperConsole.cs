@@ -34,7 +34,7 @@ namespace Console
         public Color errorOutputColor = Color.red;//Set color of error outputs
         public Color networkOutputColor = Color.cyan;//Set color of network outputs
         Commands commands;//Private field for commands script
-        List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
+        public List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
         private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
         public string input = "help";//Describe input string for console input field. Set default text here.
@@ -115,15 +115,14 @@ namespace Console
             submitFocusTrigger = true;
         }
 
-
+        
         public void QueryInput(string _input)//Make query with given input
         {
 
             foreach (Command command in commands.GetCommands())
             {
                 var _inputParams = GetInputParameters(_input);
-
-                if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity == _inputParams[0])
+                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity == _inputParams[0])
                 {
                     if (_inputParams.Length != 1)
                     {
@@ -131,14 +130,14 @@ namespace Console
 
                         for (int i = 0; i < keys.Length; i++)
                         {
+
                             Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
                                 MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
                                 MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
-
                                 Type t = command.commandParameters[keys[i]].genericType.GetType();
                                  if (_inputParams.Length <= i + 1)
                                  {
-                                     WriteSystem("Parameter [" + keys[i] + "] is not given.");
+                                WriteError("Parameter [" + keys[i] + "] is not given.");
                                 return;
 
                                   }
@@ -146,12 +145,11 @@ namespace Console
 
                             if (query != null)
                                 { 
-                                   command.commandParameters[keys[i]].optionParameter = query;
-
-                            }
+                                   command.commandParameters[keys[i]].Value = query;
+                                }
                             else
                                 {
-                                    WriteSystem("Parameter [" + keys[i] + "] is given wrong.");
+                                    WriteError("Parameter [" + keys[i] + "] is given wrong.");
                                     return;
                                 }
                          
@@ -159,6 +157,12 @@ namespace Console
                         Execute(command);
                         return;
                     }
+                    else if (_inputParams.Length < command.commandParameters.Keys.Count + 1)
+                    {
+                        WriteError("No invoke definiton for command '"+ command.GetQueryIdentity()+"' takes "+ (_inputParams.Length - 1) + " parameters.");
+                        return;
+                    }
+
                     Execute(command);
                     return;
                 }
@@ -284,45 +288,9 @@ namespace Console
             return true;
         }
 
-
-
-
-        public object ParamQuery<T>(string parameter)//Make query with given parameter and type
+        public static object ParamQuery<T>(string parameter)//Make query with given parameter and type
         {
-            if (typeof(T).IsValueType)
-            {
-                object query = null;
-                var parameters = parameter.Split(',');
-                var constructors = (typeof(T)).GetConstructors();//Get constructors of T
 
-                ConstructorInfo _constructor = null;
-
-                foreach (ConstructorInfo constructorInfo in constructors)//Get the possible declerations from constructors
-                {
-                   if(constructorInfo.GetParameters().Length == parameters.Length)
-                    {
-                        _constructor = constructorInfo;//Move with this decleration
-                    }
-                }
-                if (_constructor != null)
-                {
-                    var constructionsParametersList = Utility.GetConstructorParametersList(_constructor, parameters);
-                    if (constructionsParametersList != null)
-                    {
-                        query = (T)Activator.CreateInstance(typeof(T), constructionsParametersList.ToArray());
-                        return query;
-
-                    }
-                    return null;
-
-                }
-
-                return null;
-
-
-            }
-            else
-            {
                 if (typeof(T).IsSubclassOf(typeof(Component)))
                 {
                     Component query = null;
@@ -333,29 +301,52 @@ namespace Console
                         query = go.GetComponent(typeof(T));
 
                     }
-
-
                     return query;
                 }
-                //else
-                //{
-                //    List<object> list = new List<object>();
-                //    MethodInfo method = typeof(UnityEngine.Object).GetMethod("FindObjectsOfType");
-                //    MethodInfo methodGeneric = method.MakeGenericMethod(typeof(T));
-                //    list = (List<object>)methodGeneric.Invoke(this, new object[] { });
+                else
+                {
+
+                if (Utility.TryConvert(parameter,typeof(T)))//If parameter string is convertable directly to T return converted 
+                {
+                    var covertedParam = (T)Convert.ChangeType(parameter, typeof(T));
+                    if (covertedParam != null)
+                    {
+                        return covertedParam;
+                    }
+                }
+
+                object query = null;
+                    var parameters = parameter.Split(',');
+                    var constructors = (typeof(T)).GetConstructors();//Get constructors of T
+                    ConstructorInfo _constructor = null;
+
+                    foreach (ConstructorInfo constructorInfo in constructors)//Get the possible declerations from constructors
+                    {
+                        if (constructorInfo.GetParameters().Length == parameters.Length)
+                        {
+                            _constructor = constructorInfo;//Move with this decleration
+                        }
+                    }
+                    if (_constructor != null)
+                    {
+                        var constructionsParametersList = Utility.GetConstructorParametersList(_constructor, parameters);
+                        if (constructionsParametersList != null)
+                        {
+                            query = (T)Activator.CreateInstance(typeof(T), constructionsParametersList.ToArray());
+                            return query;
+
+                        }
+                        return null;
+
+                    }
+
+                    return null;
 
 
-                //    if ()
-                //    {
+                }
 
-                //    }
 
-                //}
-            }
 
-          
-
-            return null;
         }
 
 
