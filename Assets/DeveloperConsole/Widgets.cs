@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
@@ -58,7 +59,6 @@ namespace Console
                     {
                         if (command.GetQueryIdentity().Substring(0, input.Length) == input)
                         {
-                            Debug.Log(command.GetQueryIdentity());
 
                             predictedCommandIdentities.Add(command.GetQueryIdentity());
                         }
@@ -123,6 +123,7 @@ namespace Console
                 {
                     foreach (Command command in Commands.Instance.GetCommands())//Check every command and compare them to input
                     {
+
                         if (input == command.GetQueryIdentity())
                         {
                             string hintText = "";
@@ -130,10 +131,15 @@ namespace Console
                             {
                                 hintText += " ";
                             }
-                            var values = command.commandParameters.Values;
-                            foreach (CommandParameter commandOption in values.ToArray())
+                            var parameterFields = command.GetType().GetFields();
+
+                            foreach (FieldInfo fieldInfo in parameterFields)
                             {
-                                hintText += " [" + commandOption.genericType.ToString()+"]";
+                                if (fieldInfo.GetCustomAttribute<CommandParameterAttribute>() != null)
+                                {
+                                    hintText += " [" + fieldInfo.GetCustomAttribute<CommandParameterAttribute>().description + "]";
+
+                                }
 
                             }
                             _hintText = hintText;

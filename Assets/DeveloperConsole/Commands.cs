@@ -127,7 +127,6 @@ namespace Console
             {
                 var trans = (Transform)((CommandParameter)(commandParameters["transform"] as CommandParameter<Transform>)).optionParameter;
                 var vec = (commandParameters["position"] as CommandParameter<Vector3>).optionParameter;
-                Debug.Log(vec);
                 //Debug.Log("transported");
                 if (trans == null)
                 {
@@ -150,9 +149,9 @@ namespace Console
         class Rotate : Command
         {
             [CommandParameter("transform")]
-            Transform transform;
+            public Transform transform;
             [CommandParameter("rotation")]
-            Quaternion rotation;
+            public Quaternion rotation;
             public Rotate()
             {
 
@@ -174,7 +173,7 @@ namespace Console
 
                 }
                 trans.rotation = quaternion;
-                return new ConsoleOutput(((Transform)trans).name + " moved to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput(((Transform)trans).name + " rotated to " + quaternion.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }

@@ -152,7 +152,7 @@ namespace Console
 
         public static string ParamsGivenWrong<T>()
         {
-            return ("Paramaters for ["+ typeof(T)+"] given wrong!");
+            return ("Parameters for ["+ typeof(T)+"] given wrong!");
         }
 
 
