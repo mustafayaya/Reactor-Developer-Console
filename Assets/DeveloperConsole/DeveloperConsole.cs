@@ -127,15 +127,15 @@ namespace Console
                 {
                     if (_inputParams.Length != 1)
                     {
-                        var keys = command.commandOptions.Keys.ToArray();
+                        var keys = command.commandParameters.Keys.ToArray();
 
                         for (int i = 0; i < keys.Length; i++)
                         {
-                            Type genericTypeArgument = command.commandOptions[keys[i]].GetType().GenericTypeArguments[0];
+                            Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
                                 MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
                                 MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
 
-                                Type t = command.commandOptions[keys[i]].genericType.GetType();
+                                Type t = command.commandParameters[keys[i]].genericType.GetType();
                                  if (_inputParams.Length <= i + 1)
                                  {
                                      WriteSystem("Parameter [" + keys[i] + "] is not given.");
@@ -146,7 +146,7 @@ namespace Console
 
                             if (query != null)
                                 { 
-                                   command.commandOptions[keys[i]].optionParameter = query;
+                                   command.commandParameters[keys[i]].optionParameter = query;
 
                             }
                             else

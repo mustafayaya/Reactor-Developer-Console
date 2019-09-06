@@ -26,10 +26,22 @@ namespace Console {
 
     }
 
+    [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
+    public class CommandParameterAttribute : Attribute
+    {
+        public string description;
+
+
+        public CommandParameterAttribute(string _description)
+        {
+            description = _description;
+        }
+
+    }
 
     public class Command : ICommand
     {
-        public Dictionary<string, CommandOption> commandOptions = new Dictionary<string, CommandOption>();
+        public Dictionary<string, CommandParameter> commandParameters = new Dictionary<string, CommandParameter>();
 
         public virtual ConsoleOutput Logic() //Logic for execute, returns the output
         {
@@ -46,21 +58,29 @@ namespace Console {
         }
     }
 
-    public abstract class CommandOption
+    public abstract class CommandParameter
     {
         public object optionParameter;
         public Type genericType;
     }
 
-    public class CommandOption<TOption> : CommandOption
+    public class CommandParameter<TOption> : CommandParameter
     {
         public TOption optionParameter
         {
-            get { return (TOption)base.optionParameter; }
+            get {
+                if (base.optionParameter == null)
+                {
+                    return default;
+                }
+                return (TOption)base.optionParameter;
+
+            }
         }
-        public CommandOption()
+        public CommandParameter()
         {
             base.genericType = typeof(TOption);
+            base.optionParameter = null;
         }
 
     }

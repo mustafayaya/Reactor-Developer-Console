@@ -50,6 +50,19 @@ namespace Console
 
             foreach (Command command in commands)
             {
+                var fields = command.GetType().GetFields();//Set command options
+                foreach (FieldInfo fieldInfo in fields)
+                {
+                    if (fieldInfo.GetCustomAttribute<CommandParameterAttribute>() != null)
+                    {
+                        var commandOptionType = typeof(CommandParameter<>);
+                        var commandOptionTypeGeneric = commandOptionType.MakeGenericType(fieldInfo.FieldType);
+                        var commandOption = Activator.CreateInstance(commandOptionTypeGeneric,new object[] { });
+                        
+                        command.commandParameters.Add(fieldInfo.GetCustomAttribute<CommandParameterAttribute>().description, (CommandParameter)commandOption);
+                        
+                    }
+                }
                 _commands.Add(command);
             }
 
@@ -72,6 +85,7 @@ namespace Console
         [ConsoleCommand("help", "List all available commands")]
         class Help : Command
         {
+
             public Help()
             {
 
@@ -84,7 +98,7 @@ namespace Console
                 foreach (Command command in Commands.Instance.GetCommands())
                 {
                     commandList = commandList + "\n -" + command.GetQueryIdentity();
-                    var keys = command.commandOptions.Keys.ToArray();
+                    var keys = command.commandParameters.Keys.ToArray();
                     for (int i = 0; i < keys.Length; i++)
                     {
                         commandList += " [" + keys[i].ToString() + "] ";
@@ -100,16 +114,19 @@ namespace Console
         [ConsoleCommand("move", "Translate a game object's transform to a world point")]
         class Move : Command
         {
-             public Move()
+            [CommandParameter("transform")]
+            public Transform transform;
+            [CommandParameter("position")]
+            public Vector3 position;
+            public Move()
             {
-                commandOptions.Add("transform",new CommandOption<Transform>());
-                commandOptions.Add("position", new CommandOption<Vector3>());
+
             }
 
             public override ConsoleOutput Logic()
             {
-                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
-                var vec = (commandOptions["position"] as CommandOption<Vector3>).optionParameter;
+                var trans = (Transform)((CommandParameter)(commandParameters["transform"] as CommandParameter<Transform>)).optionParameter;
+                var vec = (commandParameters["position"] as CommandParameter<Vector3>).optionParameter;
                 Debug.Log(vec);
                 //Debug.Log("transported");
                 if (trans == null)
@@ -132,17 +149,19 @@ namespace Console
         [ConsoleCommand("rotate", "Rotate a game object")]
         class Rotate : Command
         {
+            [CommandParameter("transform")]
+            Transform transform;
+            [CommandParameter("rotation")]
+            Quaternion rotation;
             public Rotate()
             {
-                commandOptions.Add("transform", new CommandOption<Transform>());
-                commandOptions.Add("rotation", new CommandOption<Quaternion>());
 
             }
 
             public override ConsoleOutput Logic()
             {
-                var trans = (Transform)((CommandOption)(commandOptions["transform"] as CommandOption<Transform>)).optionParameter;
-                var quaternion = (commandOptions["rotation"] as CommandOption<Quaternion>).optionParameter;
+                var trans = (Transform)((CommandParameter)(commandParameters["transform"] as CommandParameter<Transform>)).optionParameter;
+                var quaternion = (commandParameters["rotation"] as CommandParameter<Quaternion>).optionParameter;
 
                 if (trans == null)
                 {

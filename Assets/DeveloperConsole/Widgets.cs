@@ -130,8 +130,8 @@ namespace Console
                             {
                                 hintText += " ";
                             }
-                            var values = command.commandOptions.Values;
-                            foreach (CommandOption commandOption in values.ToArray())
+                            var values = command.commandParameters.Values;
+                            foreach (CommandParameter commandOption in values.ToArray())
                             {
                                 hintText += " [" + commandOption.genericType.ToString()+"]";
 
