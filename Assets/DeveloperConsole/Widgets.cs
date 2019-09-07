@@ -47,7 +47,6 @@ namespace Console
             if (commands == null)
             {
                 commands = Commands.Instance.GetCommandsSingle();
-                DeveloperConsole.WriteError(commands.Count.ToString());
             }
             GUI.depth = -1;
             DeveloperConsole developerConsole = DeveloperConsole.Instance;

@@ -13,10 +13,10 @@ namespace Console
         private static DeveloperConsole _instance;
        [Header("Console Settings")]
         public bool active = true; //If active, draw console on UI
-        public bool printLogs = true;//If active, print logs
-        public bool printWarnings = true;//If active, print warnings
-        public bool printErrors = true;//If active, print errors
-        public bool printNetwork = true;//If active, print network
+        public bool printLogs = true;
+        public bool printWarnings = true;
+        public bool printErrors = true;
+        public bool printNetwork = true;
         private bool _predictions;
         public bool printUnityConsole;
         public bool predictions//If active, enable prediction widget
@@ -24,21 +24,22 @@ namespace Console
             set { _predictions = value; Widgets.Instance.enabled = value; }
             get { return _predictions; }
         }
-        public GUISkin skin;//If active, print network
+        public GUISkin skin;
         public int lineSpacing = 20;//Set spacing between output lines
         public int inputLimit = 64;//Set maximum console input limit
-        public Color userOutputColor = Color.HSVToRGB(0,0,0.75f);//Set color of user outputs
-        public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.90f);//Set color of system outputs
-        public Color logOutputColor = Color.HSVToRGB(0, 0, 0.90f);//Set color of log outputs
-        public Color warningOutputColor = Color.yellow;//Set color of warning outputs
-        public Color errorOutputColor = Color.red;//Set color of error outputs
-        public Color networkOutputColor = Color.cyan;//Set color of network outputs
+        public Color userOutputColor = Color.HSVToRGB(0,0,0.75f);
+        public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.90f);
+        public Color logOutputColor = Color.HSVToRGB(0, 0, 0.90f);
+        public Color warningOutputColor = Color.yellow;
+        public Color errorOutputColor = Color.red;
+        public Color networkOutputColor = Color.cyan;
         Commands commands;//Private field for commands script
         public List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
         private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
         private bool scrollDownTrigger;
-        private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
+        private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
         public string input = "help";//Describe input string for console input field. Set default text here.
+
         private static bool created = false;
         public static DeveloperConsole Instance//Singleton
         {
@@ -68,7 +69,7 @@ namespace Console
          
         public void Start()
         {
-            commands = Commands.Instance;//Get commands script
+            commands = Commands.Instance;//Instantiate commands
             WriteSystem(Utility.AwakeMessage());
             Application.logMessageReceived += new Application.LogCallback(this.PrintUnityOutput);
             
@@ -76,17 +77,15 @@ namespace Console
 
         public void Update()
         {
-           
             if (active)
             {
                 if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
                 {
                     inputFocusTrigger = false;
                 }
-                   OutputFilterHandler();
+                OutputFilterHandler();
                 OutputManager();
             }
-
         }
 
         private void OutputFilterHandler()
@@ -117,6 +116,18 @@ namespace Console
                 if (consoleOutputs.Find(x => x.outputType == ConsoleOutput.OutputType.Warning) != null)
                 {
                     consoleOutputs.RemoveAll(x => x.outputType == ConsoleOutput.OutputType.Warning);
+                }
+            }
+        }
+
+        private void OutputManager()//Manage console output
+        {
+            //Remove old logs for avoid performance issues & stackoverflow exception 
+            if (consoleOutputs.Count > 100)
+            {
+                for (int i = 0; i < consoleOutputs.Count - 101; i++)
+                {
+                    consoleOutputs.Remove(consoleOutputs[i]);
                 }
             }
         }
@@ -202,40 +213,21 @@ namespace Console
             Instance.scrollDownTrigger = true;
         }
 
-        public static bool WriteUser(string input)//Write simple line
+        public static bool WriteUser(object input)//Write simple line
         {
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.User, false);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.User, false);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
         }
-        public static bool WriteSystem(string input)//Write simple line
+        public static bool WriteSystem(object input)//Write simple line
         {
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.System);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.System);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
         }
-        public static bool WriteLine(string input)//Write simple line
-        {
-            if (!Instance.printLogs)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if(Instance.consoleOutputs.Last().output == input)
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteLog(string input)
+        public static bool WriteLine(object input)//Write simple line
         {
             if (!Instance.printLogs)
             {
@@ -243,19 +235,38 @@ namespace Console
             }
             if (Instance.consoleOutputs.Count != 0)
             {
-                if (Instance.consoleOutputs.Last().output == input)
+                if(Instance.consoleOutputs.Last().output == input.ToString())
                 {
                     return false;
 
                 }
             }
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log, false);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+            return true;
+        }
+        public static bool WriteLog(object input)
+        {
+            if (!Instance.printLogs)
+            {
+                return false;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return false;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
         }
 
-        public static bool WriteWarning(string input)
+        public static bool WriteWarning(object input)
         {
             if (!Instance.printWarnings)
             {
@@ -263,18 +274,18 @@ namespace Console
             }
             if (Instance.consoleOutputs.Count != 0)
             {
-                if (Instance.consoleOutputs.Last().output == input)
+                if (Instance.consoleOutputs.Last().output == input.ToString())
                 {
                     return false;
 
                 }
             }
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Warning);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
         }
-        public static bool WriteError(string input)
+        public static bool WriteError(object input)
         {
             if (!Instance.printErrors)
             {
@@ -282,18 +293,18 @@ namespace Console
             }
             if (Instance.consoleOutputs.Count != 0)
             {
-                if (Instance.consoleOutputs.Last().output == input)
+                if (Instance.consoleOutputs.Last().output == input.ToString())
                 {
                     return false;
 
                 }
             }
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Error);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Error);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
         }
-        public static bool WriteNetwork(string input)
+        public static bool WriteNetwork(object input)
         {
             if (!Instance.printNetwork)
             {
@@ -301,13 +312,13 @@ namespace Console
             }
             if (Instance.consoleOutputs.Count != 0)
             {
-                if (Instance.consoleOutputs.Last().output == input)
+                if (Instance.consoleOutputs.Last().output == input.ToString())
                 {
                     return false;
 
                 }
             }
-            ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Network);
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Network);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
             return true;
@@ -811,16 +822,6 @@ namespace Console
                     return;
             }
         }
-        private void OutputManager()//Manage console output
-        {
-            //Remove old logs for avoid performance issues & stackoverflow exception 
-            if (consoleOutputs.Count > 100)
-            {
-                for (int i = 0; i< consoleOutputs.Count- 101;i++ )
-                {
-                    consoleOutputs.Remove(consoleOutputs[i]);
-                }
-            }
-        }
+
     }
 }
