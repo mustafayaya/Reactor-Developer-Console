@@ -902,19 +902,6 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("culture", "Get the culture", true)]
-        class CultureGet : Command
-        {
-
-            public override ConsoleOutput Logic()
-            {
-                base.Logic();
-                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
-
-                return new ConsoleOutput("Culture is " + oldCulture, ConsoleOutput.OutputType.Log, false);
-
-            }
-        }
 
         [ConsoleCommand("culture", "Set the culture", true)]
         class CultureSet : Command
@@ -928,6 +915,136 @@ namespace Console
                 var cultureInfo = value;
 
                 return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
+
+            }
+
+            public override ConsoleOutput GetValue()
+            {
+                base.GetValue();
+                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+
+                return new ConsoleOutput("Culture is " + oldCulture, ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("rb_addforce", "Addforce to a rigidbody", true)]
+        class Addforce : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+
+            [CommandParameter("Vector3")]
+            public Vector3 force;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+                Rigidbody.AddForce(force);
+
+                return new ConsoleOutput("Force " + force.ToString()+ " applied to object "+ Rigidbody.name, ConsoleOutput.OutputType.Log, true);
+
+            }
+        }
+
+        [ConsoleCommand("rb_mass", "Set mass of rigidbody", true)]
+        class SetMass : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+
+            [CommandParameter("Vector3")]
+            public float mass;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+                Rigidbody.mass = mass;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("rb_drag", "Set drag of object", true)]
+        class SetDrag : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+
+            [CommandParameter("Vector3")]
+            public float drag;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+                Rigidbody.drag = drag;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("rb_freezerot", "Freeze rotation of object", true)]
+        class FreezeRotation : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+            [CommandParameter("bool")]
+            public bool value;
+
+ 
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+                Rigidbody.freezeRotation = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("rb_freezepos", "Freeze position of object", true)]
+        class FreezePozition : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+            [CommandParameter("bool")]
+            public bool value;
+
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                if (value)
+                {
+                    Rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionY; 
+                }
+                if (value)
+                {
+                    Rigidbody.constraints = RigidbodyConstraints.None;
+                }
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("rb_usegravity", "Freeze position of object", true)]
+        class Usegravity : Command
+        {
+            [CommandParameter("Rigidbody")]
+            public Rigidbody Rigidbody;
+            [CommandParameter("bool")]
+            public bool value;
+
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                
+                    Rigidbody.useGravity = value;
+                
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
 
             }
         }

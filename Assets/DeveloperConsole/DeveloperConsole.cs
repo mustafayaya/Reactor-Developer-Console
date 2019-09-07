@@ -149,15 +149,15 @@ namespace Console
                         {
 
                             Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
-                                MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
-                                MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
-                                Type t = command.commandParameters[keys[i]].genericType.GetType();
-                                 if (_inputParams.Length <= i + 1)
-                                 {
+                            MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
+                            MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
+                            Type t = command.commandParameters[keys[i]].genericType.GetType();
+                            if (_inputParams.Length <= i + 1)
+                            {
                                 WriteError("Parameter [" + keys[i] + "] is not given.");
                                 return;
 
-                                  }
+                            }
                             var query = genericQuery.Invoke(this, new object[] { (_inputParams[i + 1]) });
 
                             if (query != null)
@@ -321,22 +321,31 @@ namespace Console
         public static object ParamQuery<T>(string parameter)//Make query with given parameter and type
         {
 
-                if (typeof(T).IsSubclassOf(typeof(Component)))
+            if (typeof(T).IsSubclassOf(typeof(Component)))
+            {
+                Component query = null;
+
+                var go = GameObject.Find(parameter);
+                if (go != null && go.TryGetComponent(typeof(T), out query))
                 {
-                    Component query = null;
 
-                    var go = GameObject.Find(parameter);
-                    if (go != null)
-                    {
-                        query = go.GetComponent(typeof(T));
-
-                    }
                     return query;
                 }
-                else
+                else if(go != null && !go.TryGetComponent(typeof(T), out query))
                 {
+                    WriteError(parameter + " doesn't have a " + typeof(T));
+                    return query;
 
-                if (Utility.TryConvert(parameter,typeof(T)))//If parameter string is convertable directly to T return converted 
+                }
+
+
+                return query;
+                }
+            
+            else
+            {
+
+                if (Utility.TryConvert(parameter, typeof(T)))//If parameter string is convertable directly to T return converted 
                 {
                     var covertedParam = (T)Convert.ChangeType(parameter, typeof(T));
                     if (covertedParam != null)
@@ -346,34 +355,34 @@ namespace Console
                 }
 
                 object query = null;
-                    var parameters = parameter.Split(',');
-                    var constructors = (typeof(T)).GetConstructors();//Get constructors of T
-                    ConstructorInfo _constructor = null;
+                var parameters = parameter.Split(',');
+                var constructors = (typeof(T)).GetConstructors();//Get constructors of T
+                ConstructorInfo _constructor = null;
 
-                    foreach (ConstructorInfo constructorInfo in constructors)//Get the possible declerations from constructors
+                foreach (ConstructorInfo constructorInfo in constructors)//Get the possible declerations from constructors
+                {
+                    if (constructorInfo.GetParameters().Length == parameters.Length)
                     {
-                        if (constructorInfo.GetParameters().Length == parameters.Length)
-                        {
-                            _constructor = constructorInfo;//Move with this decleration
-                        }
+                        _constructor = constructorInfo;//Move with this decleration
                     }
-                    if (_constructor != null)
+                }
+                if (_constructor != null)
+                {
+                    var constructionsParametersList = Utility.GetConstructorParametersList(_constructor, parameters);
+                    if (constructionsParametersList != null)
                     {
-                        var constructionsParametersList = Utility.GetConstructorParametersList(_constructor, parameters);
-                        if (constructionsParametersList != null)
-                        {
-                            query = (T)Activator.CreateInstance(typeof(T), constructionsParametersList.ToArray());
-                            return query;
-
-                        }
-                        return null;
+                        query = (T)Activator.CreateInstance(typeof(T), constructionsParametersList.ToArray());
+                        return query;
 
                     }
-
                     return null;
 
-
                 }
+
+                return null;
+
+
+            }
 
 
 
