@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using UnityEngine;
+using System.Threading;
 using UnityEngine.Analytics;
 
 namespace Console
@@ -56,11 +57,7 @@ namespace Console
                     DeveloperConsole.WriteWarning("Multiple stocking of command '" + command.GetQueryIdentity() + "'. Command will be ignored.");
                     continue;
                 }
-                if (_commands.ToList().Exists(x => x.GetQueryIdentity() == command.GetQueryIdentity()))//Check multiple stocking with query identity
-                {
-                    DeveloperConsole.WriteWarning("Multiple stocking of command '" + command.GetQueryIdentity() + "'. Command will be ignored.");
-                    continue;
-                }
+               
                 var fields = command.GetType().GetFields();//Set command options
                 foreach (FieldInfo fieldInfo in fields)
                 {
@@ -78,22 +75,53 @@ namespace Console
             }
 
             
-            foreach (Command c in _commands.ToList())
+            foreach (Command command in _commands.ToList())
             {
-                if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
+                if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
                 {
-                    var message = "Command " + c + "("+c.GetHashCode()+") doesn't has a query identity. Command will be ignored." ;
+                    var message = "Command " + command + "("+ command.GetHashCode()+") doesn't has a query identity. Command will be ignored." ;
                     Console.DeveloperConsole.WriteWarning(message);
-                    _commands.Remove(c);
+                    _commands.Remove(command);
                 }
 
-                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).onlyAllowedOnDeveloperVersion && !Debug.isDebugBuild)
+                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).onlyAllowedOnDeveloperVersion && !Debug.isDebugBuild)
                     {
-                        _commands.Remove(c);
+                        _commands.Remove(command);
 
                     }
 
+                if (_commands.ToList().Exists(x => x.GetQueryIdentity() == command.GetQueryIdentity() && x != command))//Check multiple stocking with query identity
+                {
+                    var stockingCommands = _commands.ToList().FindAll(x => x.GetQueryIdentity() == command.GetQueryIdentity());//Get overstocking commands
+                    List<Type> commandParamTypes = new List<Type>();
+                    foreach (CommandParameter value in command.commandParameters.Values)
+                    {
+                        commandParamTypes.Add(value.genericType);
 
+                    }
+
+                    foreach (Command overStockedCommand in stockingCommands)//Check does overstocked commands have the same invoke definition
+                    {
+                        if (overStockedCommand == command)
+                        {
+                            continue;
+                        }
+                        List<Type> _paramTypes = new List<Type>();
+                        foreach (CommandParameter value in overStockedCommand.commandParameters.Values)
+                        {
+                            _paramTypes.Add(value.genericType);
+                        }
+                        if (Utility.CompareLists<Type>(commandParamTypes, _paramTypes))
+                        {
+                            DeveloperConsole.WriteWarning("Conflict between two invoke definitions of command'" + command.GetQueryIdentity() + "'. Command will be ignored.");
+                            _commands.Remove(command);
+
+                            continue;
+
+                        }
+                    }
+
+                }
             }
             
         }
@@ -874,6 +902,35 @@ namespace Console
             }
         }
 
+        [ConsoleCommand("culture", "Get the culture", true)]
+        class CultureGet : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+
+                return new ConsoleOutput("Culture is " + oldCulture, ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("culture", "Set the culture", true)]
+        class CultureSet : Command
+        {
+            [CommandParameter("CultureInfo")]
+            public System.Globalization.CultureInfo value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
+                var cultureInfo = value;
+
+                return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
         #endregion
     }
 
