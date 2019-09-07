@@ -57,7 +57,7 @@ namespace Console
                 {
                     if (input.Length < command.GetQueryIdentity().Length)
                     {
-                        if (command.GetQueryIdentity().Substring(0, input.Length) == input)
+                        if (command.GetQueryIdentity().Substring(0, input.Length).ToLower() == input.ToLower())
                         {
 
                             predictedCommandIdentities.Add(command.GetQueryIdentity());

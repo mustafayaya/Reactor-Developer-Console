@@ -36,6 +36,7 @@ namespace Console
         Commands commands;//Private field for commands script
         public List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
         private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
+        private bool scrollDownTrigger;
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
         public string input = "help";//Describe input string for console input field. Set default text here.
 
@@ -122,7 +123,7 @@ namespace Console
             foreach (Command command in commands.GetCommands())
             {
                 var _inputParams = GetInputParameters(_input);
-                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity == _inputParams[0])
+                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity.ToLower() == _inputParams[0].ToLower())
                 {
                     if (_inputParams.Length != 1)
                     {
@@ -177,18 +178,21 @@ namespace Console
         {
             var output = command.Logic(); //Execute the command and get output
             Write(output);
+            Instance.scrollDownTrigger = true;
         }
 
         public static bool WriteUser(string input)//Write simple line
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.User, false);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public static bool WriteSystem(string input)//Write simple line
         {
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.System);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public static bool WriteLine(string input)//Write simple line
@@ -207,6 +211,7 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log, false);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public static bool WriteLog(string input)
@@ -225,6 +230,7 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Log);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
 
@@ -244,6 +250,7 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Warning);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public static bool WriteError(string input)
@@ -262,6 +269,7 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Error);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public static bool WriteNetwork(string input)
@@ -280,11 +288,13 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input, ConsoleOutput.OutputType.Network);
             Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
             return true;
         }
         public bool Write(ConsoleOutput consoleOutput)
         {
             consoleOutputs.Add(consoleOutput);
+            Instance.scrollDownTrigger = true;
             return true;
         }
 
@@ -438,6 +448,12 @@ namespace Console
             }
 
             scrollPosition = GUI.BeginScrollView(new Rect(20, 20, windowRect.width - 40, windowRect.height - 85), scrollPosition, new Rect(20, 20, windowRect.width - 60, scrollHeight));
+            if (scrollDownTrigger)
+            {
+                scrollPosition = new Vector2(scrollPosition.x, scrollHeight);
+                scrollDownTrigger = false;
+            }
+
             GUI.SetNextControlName("textArea");
             DrawOutput();
             

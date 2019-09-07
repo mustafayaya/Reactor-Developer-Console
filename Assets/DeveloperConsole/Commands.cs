@@ -51,6 +51,16 @@ namespace Console
 
             foreach (Command command in commands)
             {
+                if (_commands.Contains(command))//Check multiple stocking with instance
+                {
+                    DeveloperConsole.WriteWarning("Multiple stocking of command '" + command.GetQueryIdentity() + "'. Command will be ignored.");
+                    continue;
+                }
+                if (_commands.ToList().Exists(x => x.GetQueryIdentity() == command.GetQueryIdentity()))//Check multiple stocking with query identity
+                {
+                    DeveloperConsole.WriteWarning("Multiple stocking of command '" + command.GetQueryIdentity() + "'. Command will be ignored.");
+                    continue;
+                }
                 var fields = command.GetType().GetFields();//Set command options
                 foreach (FieldInfo fieldInfo in fields)
                 {
@@ -72,7 +82,7 @@ namespace Console
             {
                 if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
                 {
-                    var message = "Command " + c + "("+c.GetHashCode()+") doesn't has a query identity. It will be ignored." ;
+                    var message = "Command " + c + "("+c.GetHashCode()+") doesn't has a query identity. Command will be ignored." ;
                     Console.DeveloperConsole.WriteWarning(message);
                     _commands.Remove(c);
                 }
@@ -98,14 +108,28 @@ namespace Console
 
                 foreach (Command command in Commands.Instance.GetCommands())
                 {
-                    commandList = commandList + "\n -" + command.GetQueryIdentity();
+                    int lineLength = 0;
+
+                    var line = "\n -" + command.GetQueryIdentity().ToUpper();
+                    lineLength = command.GetQueryIdentity().Length + 1;
+
                     var keys = command.commandParameters.Keys.ToArray();
-                    for (int i = 0; i < keys.Length; i++)
+                
+                    for (int i = 0; i < keys.Length; i++)//Add description information to the line
                     {
-                        commandList += " [" + keys[i].ToString() + "] ";
+                        var descriptionInfoString = " [" + keys[i].ToString() + "] ";
+                        line += descriptionInfoString;
+                        lineLength += descriptionInfoString.Length;
                     }
 
-                    commandList += "  --" + command.GetDescription();
+                    for (int i = 40- lineLength; i >0; i--)
+                    {
+                        line += " ";//Set orientation of command description 
+                    }
+
+                    line += command.GetDescription();
+
+                    commandList += line;
                 }
                 return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.System);
             }
@@ -216,7 +240,7 @@ namespace Console
                 streamWriter.Close();
 
 
-                return new ConsoleOutput("Log file created at '" + filePath + "'.", ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Log file created at '" + filePath + "'", ConsoleOutput.OutputType.Log);
             }
         }
 
@@ -267,7 +291,7 @@ namespace Console
             {
                 base.Logic();
                 Application.targetFrameRate = maxFPS;
-                return new ConsoleOutput("Frame rate limited to " + maxFPS+" frames per second.", ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Frame rate limited to " + maxFPS+" frames per second", ConsoleOutput.OutputType.Log);
             }
         }
         [ConsoleCommand("screenshot", "Save a screenshot")]
@@ -307,6 +331,40 @@ namespace Console
 
             }
         }
+
+        [ConsoleCommand("ping", "Ping adress")]
+        class ping : Command
+        {
+            [CommandParameter("Adress")]
+            public string targetLevel;
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                System.Net.NetworkInformation.Ping pingSender = new System.Net.NetworkInformation.Ping();
+
+                // Wait 10 seconds for a reply.
+                int timeout = 1000;
+
+                byte[] buffer = System.Text.Encoding.ASCII.GetBytes(targetLevel);
+                System.Net.NetworkInformation.PingOptions options = new System.Net.NetworkInformation.PingOptions(64, true);
+                System.Net.NetworkInformation.PingReply reply = null;
+                try
+                {
+                    reply = pingSender.Send(targetLevel, timeout, buffer, options);
+
+                }
+                catch (Exception ex)
+                {
+                    return new ConsoleOutput("Transmit faild. "+ ex.Message , ConsoleOutput.OutputType.Error);
+
+                }
+
+                return new ConsoleOutput("Reply from " + reply.Address + ": bytes=" + reply.Buffer.Length+" time=" + reply.RoundtripTime+"ms Status=" + reply.Status, ConsoleOutput.OutputType.Log);
+
+            }
+        }
+
         #endregion
     }
 
