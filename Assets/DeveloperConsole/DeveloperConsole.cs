@@ -18,7 +18,7 @@ namespace Console
         public bool printErrors = true;//If active, print errors
         public bool printNetwork = true;//If active, print network
         private bool _predictions;
-
+        public bool printUnityConsole;
         public bool predictions//If active, enable prediction widget
         {
             set { _predictions = value; Widgets.Instance.enabled = value; }
@@ -56,7 +56,8 @@ namespace Console
         {
             commands = Commands.Instance;//Get commands script
             WriteSystem("Welcome");
-       
+            Application.logMessageReceived += new Application.LogCallback(this.PrintUnityOutput);
+            
         }
 
         public void Update()
@@ -71,6 +72,7 @@ namespace Console
                    OutputFilterHandler();
                 OutputManager();
             }
+
         }
 
         private void OutputFilterHandler()
@@ -409,10 +411,10 @@ namespace Console
 
         void ConsoleWindow(int windowID)
         {
-            printLogs = GUI.Toggle(new Rect(10, 4, 10, 10), printLogs, "", skin.GetStyle("logButton"));
-            printWarnings = GUI.Toggle(new Rect(25, 4, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
-            printErrors = GUI.Toggle(new Rect(40, 4, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
-            printNetwork = GUI.Toggle(new Rect(55, 4, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
+            printLogs = GUI.Toggle(new Rect(10, 5, 10, 10), printLogs, "", skin.GetStyle("logButton"));
+            printWarnings = GUI.Toggle(new Rect(25, 5, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
+            printErrors = GUI.Toggle(new Rect(40, 5, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
+            printNetwork = GUI.Toggle(new Rect(55, 5, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
 
             if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5),"-", skin.GetStyle("exitButton")))
             {
@@ -694,6 +696,27 @@ namespace Console
             return windowRect;
         }
 
+        public void PrintUnityOutput(string outputString, string trace, LogType logType)
+        {
+            switch (logType)
+            {
+                case LogType.Log:
+                    WriteLog(outputString);
+                    return;
+                case LogType.Warning:
+                    WriteWarning(outputString);
+                    return;
+                case LogType.Error:
+                    WriteError(outputString);
+                    return;
+                case LogType.Exception:
+                    WriteError(outputString);
+                    return;
+                case LogType.Assert:
+                    WriteWarning(outputString);
+                    return;
+            }
+        }
         private void OutputManager()//Manage console output
         {
             //Remove old logs for avoid performance issues & stackoverflow exception 
