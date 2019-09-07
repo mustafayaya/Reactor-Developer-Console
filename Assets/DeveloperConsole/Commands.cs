@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using UnityEditor.Compilation;
 using UnityEngine;
+using UnityEngine.Analytics;
 
 namespace Console
 {
@@ -77,8 +77,8 @@ namespace Console
                 _commands.Add(command);
             }
 
-
-            foreach (Command c in _commands)
+            
+            foreach (Command c in _commands.ToList())
             {
                 if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
                 {
@@ -86,6 +86,14 @@ namespace Console
                     Console.DeveloperConsole.WriteWarning(message);
                     _commands.Remove(c);
                 }
+
+                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(c.GetType(), typeof(ConsoleCommandAttribute))).onlyAllowedOnDeveloperVersion && !Debug.isDebugBuild)
+                    {
+                        _commands.Remove(c);
+
+                    }
+
+
             }
             
         }
@@ -105,12 +113,13 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 string commandList = "\n";
+                var commands = Commands.Instance.GetCommands().OrderBy(x => x.GetQueryIdentity()).ToList();
 
-                foreach (Command command in Commands.Instance.GetCommands())
+                foreach (Command command in commands)
                 {
                     int lineLength = 0;
 
-                    var line = "\n -" + command.GetQueryIdentity().ToUpper();
+                    var line = "\n -" + command.GetQueryIdentity().ToLower();
                     lineLength = command.GetQueryIdentity().Length + 1;
 
                     var keys = command.commandParameters.Keys.ToArray();
@@ -229,15 +238,15 @@ namespace Console
                 {
                     fileContent += consoleOutput.output + "\n";
                 }
-
                 string filePath = Directory.GetParent(Application.dataPath)+"/Logs/" + fileName;
-             
-                StreamWriter streamWriter = new StreamWriter(filePath,true);
+                var output = File.CreateText(filePath);
 
-                
-                streamWriter.Write(fileContent);
 
-                streamWriter.Close();
+
+
+                output.Write(fileContent);
+
+                output.Close();
 
 
                 return new ConsoleOutput("Log file created at '" + filePath + "'", ConsoleOutput.OutputType.Log);
@@ -252,7 +261,7 @@ namespace Console
             {
                 base.Logic();
                 System.Media.SystemSounds.Beep.Play();
-                return new ConsoleOutput("Beeping for 6 seconds.", ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Beeping", ConsoleOutput.OutputType.Log);
             }
         }
 
@@ -278,7 +287,7 @@ namespace Console
             {
                 base.Logic();
                 
-                return new ConsoleOutput(echoText, ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput(echoText, ConsoleOutput.OutputType.Log,false);
             }
         }
 
@@ -295,7 +304,7 @@ namespace Console
             }
         }
         [ConsoleCommand("screenshot", "Save a screenshot")]
-        class screenshot : Command
+        class Screenshot : Command
         {
             
             public override ConsoleOutput Logic()
@@ -335,7 +344,7 @@ namespace Console
         [ConsoleCommand("ping", "Ping adress")]
         class ping : Command
         {
-            [CommandParameter("Adress")]
+            [CommandParameter("adress")]
             public string targetLevel;
 
             public override ConsoleOutput Logic()
@@ -360,7 +369,507 @@ namespace Console
 
                 }
 
-                return new ConsoleOutput("Reply from " + reply.Address + ": bytes=" + reply.Buffer.Length+" time=" + reply.RoundtripTime+"ms Status=" + reply.Status, ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Reply from " + reply.Address + ": bytes=" + reply.Buffer.Length+" time=" + reply.RoundtripTime+"ms Status=" + reply.Status, ConsoleOutput.OutputType.Network);
+
+            }
+        }
+        [ConsoleCommand("fov", "Set field of view of the current camera")]
+        class FieldOfView : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Camera.main.fieldOfView = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log);
+
+            }
+        }
+
+        [ConsoleCommand("clear", "Clear all console output")]
+        class Clear : Command
+        {
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                DeveloperConsole.Instance.consoleOutputs.Clear();
+                return new ConsoleOutput("A new start.", ConsoleOutput.OutputType.Log);
+
+            }
+        }
+
+        [ConsoleCommand("time_scale", "Scale time")]
+        class Time_Scale : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Time.timeScale = value;
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("time_fixeddeltatime", "")]
+        class Time_Fixedtimestep : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Time.fixedDeltaTime = value;
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+     
+
+
+        [ConsoleCommand("hourglass", "Print the time since startup")]
+        class Hourglass : Command
+        {
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                return new ConsoleOutput("Engine is running for "+(int)Time.realtimeSinceStartup + " seconds" , ConsoleOutput.OutputType.Log);
+
+            }
+        }
+
+        [ConsoleCommand("flush", "Clear cache memory")]
+        class Flush : Command
+        {
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var cacheCount = Caching.cacheCount;
+                Caching.ClearCache();
+                return new ConsoleOutput("Cleared " + cacheCount + " cache(s)", ConsoleOutput.OutputType.Log);
+
+            }
+        }
+
+        [ConsoleCommand("fog_color", "")]
+        class Fog_Color : Command
+        {
+
+            [CommandParameter("r,g,b")]
+            public Color Color;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                RenderSettings.fog = true;
+
+                RenderSettings.fogColor = Color;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log,false);
+
+            }
+        }
+
+        [ConsoleCommand("fog_active", "")]
+        class Fog_Active : Command
+        {
+
+            [CommandParameter("bool")]
+            public bool fog;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                RenderSettings.fog = fog;
+
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("fog_start", "")]
+        class Fog_Start : Command
+        {
+
+            [CommandParameter("float")]
+            public float start;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                RenderSettings.fogStartDistance = start;
+
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("fog_end", "")]
+        class Fog_End : Command
+        {
+
+            [CommandParameter("float")]
+            public float start;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                RenderSettings.fogEndDistance = start;
+
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("allocmem", "Print the amount of allocated memory for graphics driver")]
+        class Drawcalls : Command
+        {
+
+        
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var bytes = UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver();
+
+
+                return new ConsoleOutput(bytes+" bytes", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("path", "Print the engine filesystem path")]
+        class Path : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var path = Directory.GetParent(Application.dataPath);
+
+
+                return new ConsoleOutput(path.ToString(), ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("phys_gravity", "")]
+        class Phys_Gravity : Command
+        {
+            [CommandParameter("Vector3")]
+            public Vector3 gravity;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.gravity = gravity;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("phys_bouncethreshold", "")]
+        class Phys_Bouncethreshold : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.bounceThreshold = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("phys_sleepthreshold", "")]
+        class Phys_Sleepthreshold : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.sleepThreshold = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("phys_contactoffset", "Set the contact offset of the newly created colliders")]
+        class Phys_Sleepvelocity : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.defaultContactOffset = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("phys_maxangular", "Set the maximum angular speed")]
+        class Phys_Maxangular : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.defaultMaxAngularSpeed = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("phys_clothgravity", "")]
+        class Phys_Clothgravity : Command
+        {
+            [CommandParameter("Vector3")]
+            public Vector3 value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                Physics.clothGravity = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("ren_shadows", "Determine which type of shadows should be used. 0-Disable 1-Hard Only 2-All")]
+        class Ren_Shadowquality : Command
+        {
+            [CommandParameter("ShadowQuality")]
+            public int value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.shadows = (ShadowQuality)value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("ren_shadowresolution", "0-Low 1-Medium 2-High 3-Vey High")]
+        class Ren_Shadowresolution : Command
+        {
+            [CommandParameter("resolution")]
+            public int value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.shadowResolution = (ShadowResolution)value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("ren_softParticles", "")]
+        class Ren_Softparticles : Command
+        {
+            [CommandParameter("bool")]
+            public bool value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.softParticles = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("ren_antialiasing", "")]
+        class Ren_Antialiasing : Command
+        {
+            [CommandParameter("int")]
+            public int value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.antiAliasing = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("ren_staringbillb", "Face billboards towards the camera")]
+        class Ren_Staringbilb : Command
+        {
+            [CommandParameter("bool")]
+            public bool value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.billboardsFaceCameraPosition = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_increase", "Increase the current quality level")]
+        class Ren_Increase : Command
+        {
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.IncreaseLevel();
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_decrease", "Increase the current quality level")]
+        class Ren_Decrease : Command
+        {
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.DecreaseLevel();
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_lodbias", "Set the global multiplier for the LOD's switching distance")]
+        class Ren_Lodbias : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.lodBias = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_pxllightcount", "Set the maximum number of pixel lights that should affect any object")]
+        class Ren_Pixellightcount : Command
+        {
+            [CommandParameter("int")]
+            public int value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.pixelLightCount = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_rltrefprobes", "Enable realtime reflection probes")]
+        class Ren_Realtimereflectionprobes : Command
+        {
+            [CommandParameter("bool")]
+            public bool value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.realtimeReflectionProbes = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+        [ConsoleCommand("ren_vsynccount", "The VSync Count")]
+        class Ren_VSynchcount : Command
+        {
+            [CommandParameter("int")]
+            public int value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                QualitySettings.vSyncCount = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("restart", "Restart the game on the same level")]
+        class Restart : Command
+        {
+ 
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("au_volume", "Set volume of the current audio listener")]
+        class Au_Volume : Command
+        {
+            [CommandParameter("float")]
+            public float value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                AudioListener.volume = value;
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+        [ConsoleCommand("net_clusterstat", "Print the status of cluster network")]
+        class Net_ClusterStatus : Command
+        {
+
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                
+
+                return new ConsoleOutput("Cluster network status: isDisconnected="+ ClusterNetwork.isDisconnected+ " isMasterOfCluster="+ ClusterNetwork.isMasterOfCluster+ " nodeIndex="+ClusterNetwork.nodeIndex, ConsoleOutput.OutputType.Network, false);
+
+            }
+        }
+        [ConsoleCommand("ren_wireframe", "Enable wireframe mode",true)]
+        class Ren_wireframe : Command
+        {
+            [CommandParameter("bool")]
+            public bool value;
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+
+
+                if (value)
+                {
+                    if (Camera.main.GetComponent<WireframeWidget>() == null)
+                    {
+                        Camera.main.gameObject.AddComponent<WireframeWidget>();
+
+                    }
+                    Camera.main.GetComponent<WireframeWidget>().enabled = true;
+                    return new ConsoleOutput("Wireframe mode enabled", ConsoleOutput.OutputType.Log, false);
+
+                }
+
+                if (Camera.main.GetComponent<WireframeWidget>() != null)
+                {
+                    Camera.main.gameObject.GetComponent<WireframeWidget>().enabled = false;
+                    return new ConsoleOutput("Wireframe mode disabled", ConsoleOutput.OutputType.Log, false);
+
+                }
+
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
 
             }
         }

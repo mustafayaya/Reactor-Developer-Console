@@ -234,7 +234,14 @@ namespace Console
                 return true;
             }
 
+        public static string AwakeMessage()
+        {
+            
+            string message = "Engine started, loaded "+System.AppDomain.CurrentDomain.GetAssemblies().Length + " assemblies, network is "+ Application.internetReachability+".";
+              
 
+            return message;
+        }
 
     }
 

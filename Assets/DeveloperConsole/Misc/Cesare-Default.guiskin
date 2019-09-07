@@ -1597,7 +1597,7 @@ MonoBehaviour:
       m_Bottom: 0
     m_Padding:
       m_Left: 0
-      m_Right: 0
+      m_Right: 13
       m_Top: 0
       m_Bottom: 0
     m_Overflow:
@@ -1611,7 +1611,7 @@ MonoBehaviour:
     m_Alignment: 3
     m_WordWrap: 0
     m_RichText: 1
-    m_TextClipping: 0
+    m_TextClipping: 1
     m_ImagePosition: 0
     m_ContentOffset: {x: 6.22, y: 0}
     m_FixedWidth: 0

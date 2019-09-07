@@ -24,9 +24,6 @@ namespace Console
             }
         }
 
-
-
-
         public void OnGUI()
         {
 
@@ -35,6 +32,8 @@ namespace Console
                 CommandPredictionQuery();
             }
         }
+
+
 
         string _lastPredictionQueryInput;
         int predictionSelectionState = 0;
@@ -91,6 +90,8 @@ namespace Console
             for (int i = Mathf.Clamp(predictionSelectionState - 5, 0, 128); i < Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 5 && i < predictedCommandIdentities.Count; i++)
             {
                 GUI.SetNextControlName("predictedCommand" + i);
+                developerConsole.skin.GetStyle("prediction").font.RequestCharactersInTexture(predictedCommandIdentities[i], developerConsole.skin.GetStyle("prediction").fontSize, developerConsole.skin.GetStyle("prediction").fontStyle);
+
                 if (GUI.Button(new Rect(inputFieldRect.x, inputFieldRect.y + 2*inputFieldRect.height + ((0 - i + Mathf.Clamp(predictionSelectionState - 5, 0, 128) + 1) * -25), windowRect.width / 4, 25), predictedCommandIdentities[i], developerConsole.skin.GetStyle("prediction")))
                 {
                     developerConsole.FocusOnInputField(true);

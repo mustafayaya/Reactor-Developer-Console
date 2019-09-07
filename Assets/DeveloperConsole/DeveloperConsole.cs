@@ -39,7 +39,7 @@ namespace Console
         private bool scrollDownTrigger;
         private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);//TODO: Make window rect dynamic
         public string input = "help";//Describe input string for console input field. Set default text here.
-
+        private static bool created = false;
         public static DeveloperConsole Instance//Singleton
         {
             get
@@ -52,10 +52,24 @@ namespace Console
             }
         }
 
+        public void Awake()
+        {
+            // Ensure the script is not deleted while loading.
+            if (!created)
+            {
+                DontDestroyOnLoad(this.gameObject);
+                created = true;
+            }
+            else
+            {
+                Destroy(this.gameObject);
+            }
+        }
+         
         public void Start()
         {
             commands = Commands.Instance;//Get commands script
-            WriteSystem("Welcome");
+            WriteSystem(Utility.AwakeMessage());
             Application.logMessageReceived += new Application.LogCallback(this.PrintUnityOutput);
             
         }
@@ -179,7 +193,11 @@ namespace Console
         public void Execute(Command command)
         {
             var output = command.Logic(); //Execute the command and get output
-            Write(output);
+            if (!String.IsNullOrEmpty(output.output))
+            {
+                Write(output);
+
+            }
             Instance.scrollDownTrigger = true;
         }
 

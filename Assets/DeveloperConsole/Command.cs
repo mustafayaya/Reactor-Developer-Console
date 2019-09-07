@@ -17,6 +17,7 @@ namespace Console {
     public class ConsoleCommandAttribute : Attribute {
         public string queryIdentity; //Like set,get,execute
         public string description;
+        public bool onlyAllowedOnDeveloperVersion;
 
         public ConsoleCommandAttribute(string _queryIdentity, string _description)
         {
@@ -24,6 +25,19 @@ namespace Console {
             description = _description;
         }
 
+
+
+
+        /// <summary>
+        /// If true, this command will be available at only developer builds
+        /// </summary>
+        /// <param name="_onlyAllowedOnDeveloperVersion"></param>
+        public ConsoleCommandAttribute(string _queryIdentity, string _description,bool _onlyAllowedOnDeveloperVersion)
+        {
+            queryIdentity = _queryIdentity;
+            description = _description;
+            onlyAllowedOnDeveloperVersion = _onlyAllowedOnDeveloperVersion;
+        }
     }
 
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
