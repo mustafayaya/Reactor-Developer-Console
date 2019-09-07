@@ -18,6 +18,7 @@ namespace Console
 
 
         private List<Command> _commands = new List<Command>();
+        private List<Command> _commandsSingle;
 
         public static Commands Instance
         {
@@ -44,8 +45,26 @@ namespace Console
          public List<Command> GetCommands()
         {
 
-            return _commands;
+            return _commands.ToList();
         }
+        public List<Command> GetCommandsSingle()
+        {
+            if (_commandsSingle == null)
+            {
+                List<Command> commandsSingle = new List<Command>();
+                foreach (Command command in _commands)
+                {
+                    if (commandsSingle.Find(x=> x.GetQueryIdentity() == command.GetQueryIdentity()) == null)
+                    {
+                        commandsSingle.Add(command);
+                    }
+                }
+                _commandsSingle = commandsSingle;
+                return _commandsSingle.ToList();
+            }
+            return _commandsSingle.ToList();
+        }
+
         public void RegisterCommands()
         {
             var commands = Utility.GetTypesWithCommandAttribute(System.AppDomain.CurrentDomain.GetAssemblies());
@@ -918,16 +937,22 @@ namespace Console
 
             }
 
-            public override ConsoleOutput GetValue()
+
+        }
+        [ConsoleCommand("culture", "Get the culture", true)]
+        class CultureGet : Command
+        {
+
+            public override ConsoleOutput Logic()
             {
-                base.GetValue();
+                base.Logic();
                 var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
 
                 return new ConsoleOutput("Culture is " + oldCulture, ConsoleOutput.OutputType.Log, false);
 
             }
-        }
 
+        }
         [ConsoleCommand("rb_addforce", "Addforce to a rigidbody", true)]
         class Addforce : Command
         {

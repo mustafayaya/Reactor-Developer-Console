@@ -63,11 +63,6 @@ namespace Console {
             return new ConsoleOutput("", ConsoleOutput.OutputType.Log);
         }
 
-        public virtual ConsoleOutput GetValue() //Logic for optional get invoke definitions
-        {
-            return new ConsoleOutput("", ConsoleOutput.OutputType.Log);
-        }
-
         public string GetDescription()
         {
            return ((ConsoleCommandAttribute)Attribute.GetCustomAttribute(this.GetType(), typeof(ConsoleCommandAttribute))).description;

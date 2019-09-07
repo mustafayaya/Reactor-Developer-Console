@@ -38,21 +38,28 @@ namespace Console
         string _lastPredictionQueryInput;
         int predictionSelectionState = 0;
         List<string> predictedCommandIdentities = new List<string>();
-
+        List<Command> commands;
+ 
 
 
         private void CommandPredictionQuery() //Predict commands and print them
         {
+            if (commands == null)
+            {
+                commands = Commands.Instance.GetCommandsSingle();
+                DeveloperConsole.WriteError(commands.Count.ToString());
+            }
             GUI.depth = -1;
             DeveloperConsole developerConsole = DeveloperConsole.Instance;
             var input = developerConsole.input;
-            var commands = Commands.Instance;
+
             var windowRect = developerConsole.GetWindowRect();
             Rect inputFieldRect = new Rect(windowRect.x + 20, windowRect.y + windowRect.height - 45, windowRect.width - 160, 25);
+
             if (_lastPredictionQueryInput != input)
             {
                 predictedCommandIdentities.Clear();
-                foreach (Command command in commands.GetCommands())//Check every command and compare them to input
+                foreach (Command command in commands)//Check every command and compare them to input
                 {
                     if (input.Length < command.GetQueryIdentity().Length)
                     {
@@ -117,6 +124,7 @@ namespace Console
         {
 
            DeveloperConsole developerConsole = DeveloperConsole.Instance;
+
             var input = developerConsole.input;
             if (_lastInput != input)
             {

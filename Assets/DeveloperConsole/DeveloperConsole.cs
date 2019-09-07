@@ -136,22 +136,23 @@ namespace Console
         public void QueryInput(string _input)//Make query with given input
         {
 
-            foreach (Command command in commands.GetCommands())
-            {
-                var _inputParams = GetInputParameters(_input);
-                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity.ToLower() == _inputParams[0].ToLower())
-                {
+            var _inputParams = GetInputParameters(_input);
+            var commandQuery = CommandQuery(_inputParams);
+
+            if (commandQuery != null) { 
+                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(commandQuery.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity.ToLower() == _inputParams[0].ToLower())
+                    {
                     if (_inputParams.Length != 1)
                     {
-                        var keys = command.commandParameters.Keys.ToArray();
+                        var keys = commandQuery.commandParameters.Keys.ToArray();
 
                         for (int i = 0; i < keys.Length; i++)
                         {
 
-                            Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
+                            Type genericTypeArgument = commandQuery.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
                             MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
                             MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
-                            Type t = command.commandParameters[keys[i]].genericType.GetType();
+                            Type t = commandQuery.commandParameters[keys[i]].genericType.GetType();
                             if (_inputParams.Length <= i + 1)
                             {
                                 WriteError("Parameter [" + keys[i] + "] is not given.");
@@ -161,8 +162,8 @@ namespace Console
                             var query = genericQuery.Invoke(this, new object[] { (_inputParams[i + 1]) });
 
                             if (query != null)
-                                { 
-                                   command.commandParameters[keys[i]].Value = query;
+                                {
+                                commandQuery.commandParameters[keys[i]].Value = query;
                                 }
                             else
                                 {
@@ -171,16 +172,16 @@ namespace Console
                                 }
                          
                         }
-                        Execute(command);
+                        Execute(commandQuery);
                         return;
                     }
-                    else if (_inputParams.Length < command.commandParameters.Keys.Count + 1)
+                    else if (_inputParams.Length < commandQuery.commandParameters.Keys.Count + 1)
                     {
-                        WriteError("No invoke definiton for command '"+ command.GetQueryIdentity()+"' takes "+ (_inputParams.Length - 1) + " parameters.");
+                        WriteError("No invoke definiton for command '"+ commandQuery.GetQueryIdentity()+"' takes "+ (_inputParams.Length - 1) + " parameters.");
                         return;
                     }
 
-                    Execute(command);
+                    Execute(commandQuery);
                     return;
                 }
 
@@ -316,6 +317,72 @@ namespace Console
             consoleOutputs.Add(consoleOutput);
             Instance.scrollDownTrigger = true;
             return true;
+        }
+
+
+        public static Command CommandQuery(string[] inputKeywords)//Return the possible targeteted command invoke definition by user
+        {
+            //Invoke definitions of entered command 
+            List<Command> invokeDefinitions = Commands.Instance.GetCommands().ToList().FindAll(x=>x.GetQueryIdentity() == inputKeywords[0]);
+
+            if (inputKeywords.Length == 1 )
+            {
+                if (invokeDefinitions.Count != 0)
+                {
+                    foreach (Command command in invokeDefinitions)
+                    {
+                        if (command.commandParameters.Count == 0)
+                        {
+                            return command;
+                        }
+                    }
+                    return invokeDefinitions[0];
+
+                }
+                return null;
+
+            }
+            else
+            {
+                foreach (Command command in invokeDefinitions)
+                {
+                    var keys = command.commandParameters.Keys.ToList();
+                    List<bool> vs = new List<bool>();
+                    for (int i = 0; i < keys.Count;i++)
+                    {
+                        Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
+                        MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
+                        MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
+                        Type t = command.commandParameters[keys[i]].genericType.GetType();
+                        if (inputKeywords.Length - 1 <= i + 1)
+                        {
+                            //Not enough parameters for this invoke method
+                            continue;
+                        }
+                        var query = genericQuery.Invoke(DeveloperConsole.Instance, new object[] { (inputKeywords[i + 1]) });
+
+                        if (query != null)
+                        {
+                            vs.Add(true);
+                        }
+                        else
+                        {
+                            vs.Add(false);
+                        }
+
+                    }
+
+                    if (vs.Contains(false))
+                    {
+                        continue;
+                    }
+                    return command;
+                }
+
+                return invokeDefinitions[0];
+            }
+
+
         }
 
         public static object ParamQuery<T>(string parameter)//Make query with given parameter and type
