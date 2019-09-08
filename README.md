@@ -3,6 +3,14 @@
 
 So I was working for my souls-like game and I came up with this tool. I thought sharing with community would be useful. Thus I made simple revisions and I added useful commands that I needed when I was debugging & developing a product. 
 
+# Implementing to your project
+1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases) and import to your project.
+2-Drag the "Developer Console" prefab to your scene.
+
+Defaultly `F4` is gonna open the console. 
+
+
+
 # Features
 - Lean and resizeable user interface
 - Powerful built-in commands
@@ -11,21 +19,37 @@ So I was working for my souls-like game and I came up with this tool. I thought 
 - Output filter system
 - Input history system
 
+
 #Anatomy
 
 ![](Images/anatomy.png )
 
-There are 4 filterable output types as Log, Warning, Error and Network that you can filter at upper left corner. You can resize the window with the drag at the lower right corner. 
+You can filter output at upper left corner. You can resize the window with the drag at the lower right corner. 
 
 ![](Images/hint.png )
 
-It will draw predictions with your input. You can navigate on predictions with  ` ↓ , ↑ ` keys. Submitted inputs can be remembered later by pressing  ` ↑ ` .
+It will draw predictions with your input. You can navigate on predictions with  ` ↓ , ↑ ` keys. Submitted inputs can be restored later by pressing  ` ↑ ` .
 
-# Implementing to your project
-1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases) and import to your project.
-2-Drag the "Developer Console" prefab to your scene.
+#Console Syntax
 
-Defaultly `F4` is gonna open the console. 
+Anatomy of provided input must be like this;
+
+`[command] [params]`
+
+Consider there are 2 invoke definitions `culture` &  `culture [CultureInfo]`. The first one prints the current culture and the second one changes it. Input must be;
+
+![](Images/code3.png )
+
+Consider you need to move transform named Main Camera.
+
+![](Images/code1.png )
+
+You have to use brackets for combining words.
+
+![](Images/code2.png )
+
+
+
 
 # Adding new commands
 Reactor console supports adding commands and parameters using attributes. There can be more than one invoke definitions for each command. Built-in commands are stored in `Commands.cs`.
@@ -50,7 +74,7 @@ For adding a new command you have to create a new class inherits from `Console.C
             }
         }
 
-In this example we have set current culture to provided CultureInfo by user. But what if user wants to print the current culture instead of changing it? We should move on to another invoke definition.
+In this example we have set the current culture to provided CultureInfo by user. But what if user wants to print the current culture instead of changing it? We should move on to another invoke definition.
 
 
 		 //We've added the same command again, but now there is no parameter. 

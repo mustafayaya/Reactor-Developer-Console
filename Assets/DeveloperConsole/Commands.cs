@@ -931,6 +931,7 @@ namespace Console
             {
                 base.Logic();
                 var cultureInfo = value;
+                System.Globalization.CultureInfo.CurrentCulture = value;
 
                 return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
 
