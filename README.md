@@ -59,6 +59,7 @@ For adding a new command you have to create a new class inherits from `Console.C
 
 **NOTE: Do not forget to make parameter field public**
 
+
  	//Define command query identity, description and optionally for only developer version mode
    	[ConsoleCommand("culture", "Set the culture", true)]
 	class CultureSet : Command]//Inherits class from Console.Command
