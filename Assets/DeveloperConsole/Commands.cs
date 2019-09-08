@@ -148,7 +148,7 @@ namespace Console
         #endregion
 
         #region commands
-        [ConsoleCommand("help", "List all available commands")]
+        [ConsoleCommand("help", "List all available commands.")]
         class Help : Command
         {
 
@@ -160,7 +160,7 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 string commandList = "\n";
-                var commands = Commands.Instance.GetCommands().OrderBy(x => x.GetQueryIdentity()).ToList();
+                var commands = Commands.Instance.GetCommandsSingle().OrderBy(x => x.GetQueryIdentity()).ToList();
 
                 foreach (Command command in commands)
                 {
@@ -192,7 +192,59 @@ namespace Console
 
         }
 
-        [ConsoleCommand("move", "Translate a game object's transform to a world point")]
+        [ConsoleCommand("help", "Provide help information for commands.")]
+        class HelpCommand : Command
+        {
+            [CommandParameter("command")]
+            public string queryIdentity;
+            public HelpCommand()
+            {
+
+            }
+            public override ConsoleOutput Logic()
+            {
+                var commands = Commands.Instance.GetCommands().FindAll(x => x.GetQueryIdentity() == queryIdentity);
+
+                if (commands.Count == 0)
+                {
+                    return new ConsoleOutput("'"+queryIdentity + "' is not supported by help utility.", ConsoleOutput.OutputType.System);
+
+                }
+
+                string helpInformationText = "";
+
+
+                int lineLength;
+                foreach (Command command in commands)
+                {
+
+                    var line = "-" + command.GetQueryIdentity().ToLower();
+                    lineLength = command.GetQueryIdentity().Length + 1;
+
+                    var keys = command.commandParameters.Keys.ToArray();
+
+                    for (int i = 0; i < keys.Length; i++)//Add description information to the line
+                    {
+                        var descriptionInfoString = " [" + keys[i].ToString() + "] ";
+                        line += descriptionInfoString;
+                        lineLength += descriptionInfoString.Length;
+                    }
+
+                    for (int i = 40 - lineLength; i > 0; i--)
+                    {
+                        line += " ";//Set orientation of command description 
+                    }
+
+                    line += command.GetDescription() + "\n";
+
+                    helpInformationText += line;
+                }
+                return new ConsoleOutput(helpInformationText, ConsoleOutput.OutputType.System,false);
+            }
+
+        }
+
+        [ConsoleCommand("move", "Translate a game object's transform to a world point.")]
         class Move : Command
         {
             [CommandParameter("transform")]
@@ -214,7 +266,7 @@ namespace Console
         }
 
        
-        [ConsoleCommand("rotate", "Rotate a game object")]
+        [ConsoleCommand("rotate", "Rotate a game object.")]
         class Rotate : Command
         {
             [CommandParameter("transform")]
@@ -235,7 +287,7 @@ namespace Console
 
         }
 
-        [ConsoleCommand("sphere", "Instantiate a physical sphere")]
+        [ConsoleCommand("sphere", "Instantiate a physical sphere.")]
         class Sphere : Command
         {
             public Sphere()
@@ -267,7 +319,7 @@ namespace Console
 
 
 
-        [ConsoleCommand("export","Export this session to a text file")]
+        [ConsoleCommand("export","Export this session to a text file.")]
         class Export : Command
         {
 
@@ -300,7 +352,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("beep", "Play the sound associated with the Beep system event")]
+        [ConsoleCommand("beep", "Play the sound associated with the beep system event.")]
         class Beep : Command
         {
 
@@ -338,7 +390,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("fps_max", "Limit the frame rate. Set 0 for unlimited")]
+        [ConsoleCommand("fps_max", "Limit the frame rate. Set 0 for unlimited.")]
         class Fps_max : Command
         {
             [CommandParameter("maxFPS")]
@@ -350,7 +402,7 @@ namespace Console
                 return new ConsoleOutput("Frame rate limited to " + maxFPS+" frames per second", ConsoleOutput.OutputType.Log);
             }
         }
-        [ConsoleCommand("screenshot", "Save a screenshot")]
+        [ConsoleCommand("screenshot", "Save a screenshot.")]
         class Screenshot : Command
         {
             
@@ -365,7 +417,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("loadlevel", "Load the level by given name or id")]
+        [ConsoleCommand("loadlevel", "Load the level by given name or id.")]
         class LoadLevel : Command
         {
             [CommandParameter("level")]
@@ -388,7 +440,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("ping", "Ping adress")]
+        [ConsoleCommand("ping", "Ping adress.")]
         class ping : Command
         {
             [CommandParameter("adress")]
@@ -420,7 +472,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("fov", "Set field of view of the current camera")]
+        [ConsoleCommand("fov", "Set field of view of the current camera.")]
         class FieldOfView : Command
         {
             [CommandParameter("float")]
@@ -448,7 +500,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("time_scale", "Scale time")]
+        [ConsoleCommand("time_scale", "Scale time.")]
         class Time_Scale : Command
         {
             [CommandParameter("float")]
@@ -480,18 +532,18 @@ namespace Console
      
 
 
-        [ConsoleCommand("hourglass", "Print the time since startup")]
+        [ConsoleCommand("hourglass", "Print the time since startup.")]
         class Hourglass : Command
         {
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                return new ConsoleOutput("Engine is running for "+(int)Time.realtimeSinceStartup + " seconds" , ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Engine is running for "+(int)Time.realtimeSinceStartup + " seconds." , ConsoleOutput.OutputType.Log);
 
             }
         }
 
-        [ConsoleCommand("flush", "Clear cache memory")]
+        [ConsoleCommand("flush", "Clear cache memory.")]
         class Flush : Command
         {
             public override ConsoleOutput Logic()
@@ -499,7 +551,7 @@ namespace Console
                 base.Logic();
                 var cacheCount = Caching.cacheCount;
                 Caching.ClearCache();
-                return new ConsoleOutput("Cleared " + cacheCount + " cache(s)", ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Cleared " + cacheCount + " cache(s).", ConsoleOutput.OutputType.Log);
 
             }
         }
@@ -573,7 +625,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("allocmem", "Print the amount of allocated memory for graphics driver")]
+        [ConsoleCommand("allocmem", "Print the amount of allocated memory for graphics driver.")]
         class Drawcalls : Command
         {
 
@@ -589,7 +641,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("path", "Print the engine filesystem path")]
+        [ConsoleCommand("path", "Print the engine filesystem path.")]
         class Path : Command
         {
 
@@ -646,7 +698,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("phys_contactoffset", "Set the contact offset of the newly created colliders")]
+        [ConsoleCommand("phys_contactoffset", "Set the contact offset of the newly created colliders.")]
         class Phys_Sleepvelocity : Command
         {
             [CommandParameter("float")]
@@ -660,7 +712,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("phys_maxangular", "Set the maximum angular speed")]
+        [ConsoleCommand("phys_maxangular", "Set the maximum angular speed.")]
         class Phys_Maxangular : Command
         {
             [CommandParameter("float")]
@@ -750,7 +802,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("ren_staringbillb", "Face billboards towards the camera")]
+        [ConsoleCommand("ren_staringbillb", "Face billboards towards the camera.")]
         class Ren_Staringbilb : Command
         {
             [CommandParameter("bool")]
@@ -764,7 +816,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_increase", "Increase the current quality level")]
+        [ConsoleCommand("ren_increase", "Increase the current quality level.")]
         class Ren_Increase : Command
         {
             public override ConsoleOutput Logic()
@@ -776,7 +828,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_decrease", "Increase the current quality level")]
+        [ConsoleCommand("ren_decrease", "Increase the current quality level.")]
         class Ren_Decrease : Command
         {
             public override ConsoleOutput Logic()
@@ -788,7 +840,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_lodbias", "Set the global multiplier for the LOD's switching distance")]
+        [ConsoleCommand("ren_lodbias", "Set the global multiplier for the LOD's switching distance.")]
         class Ren_Lodbias : Command
         {
             [CommandParameter("float")]
@@ -802,7 +854,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_pxllightcount", "Set the maximum number of pixel lights that should affect any object")]
+        [ConsoleCommand("ren_pxllightcount", "Set the maximum number of pixel lights that should affect any object.")]
         class Ren_Pixellightcount : Command
         {
             [CommandParameter("int")]
@@ -816,7 +868,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_rltrefprobes", "Enable realtime reflection probes")]
+        [ConsoleCommand("ren_rltrefprobes", "Enable realtime reflection probes.")]
         class Ren_Realtimereflectionprobes : Command
         {
             [CommandParameter("bool")]
@@ -830,7 +882,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_vsynccount", "The VSync Count")]
+        [ConsoleCommand("ren_vsynccount", "The VSync Count.")]
         class Ren_VSynchcount : Command
         {
             [CommandParameter("int")]
@@ -845,7 +897,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("restart", "Restart the game on the same level")]
+        [ConsoleCommand("restart", "Restart the game on the same level.")]
         class Restart : Command
         {
  
@@ -859,7 +911,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("au_volume", "Set volume of the current audio listener")]
+        [ConsoleCommand("au_volume", "Set volume of the current audio listener.")]
         class Au_Volume : Command
         {
             [CommandParameter("float")]
@@ -874,7 +926,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("net_clusterstat", "Print the status of cluster network")]
+        [ConsoleCommand("net_clusterstat", "Print the status of cluster network.")]
         class Net_ClusterStatus : Command
         {
 
@@ -887,7 +939,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_wireframe", "Enable wireframe mode",true)]
+        [ConsoleCommand("ren_wireframe", "Enable wireframe mode.",true)]
         class Ren_wireframe : Command
         {
             [CommandParameter("bool")]
@@ -922,7 +974,7 @@ namespace Console
         }
 
 
-        [ConsoleCommand("culture", "Set the culture")]
+        [ConsoleCommand("culture", "Set the culture.")]
         class CultureSet : Command
         {
             [CommandParameter("CultureInfo")]
@@ -937,7 +989,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("culture", "Get the culture")]
+        [ConsoleCommand("culture", "Get the culture.")]
         class CultureGet : Command
         {
 
@@ -951,7 +1003,7 @@ namespace Console
             }
 
         }
-        [ConsoleCommand("rb_addforce", "Addforce to a rigidbody")]
+        [ConsoleCommand("rb_addforce", "Addforce to a rigidbody.")]
         class Addforce : Command
         {
             [CommandParameter("Rigidbody")]
@@ -970,7 +1022,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_mass", "Set mass of rigidbody")]
+        [ConsoleCommand("rb_mass", "Set mass of rigidbody.")]
         class SetMass : Command
         {
             [CommandParameter("Rigidbody")]
@@ -989,7 +1041,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_drag", "Set drag of object")]
+        [ConsoleCommand("rb_drag", "Set drag of object.")]
         class SetDrag : Command
         {
             [CommandParameter("Rigidbody")]
@@ -1007,7 +1059,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("rb_freezerot", "Freeze rotation of object")]
+        [ConsoleCommand("rb_freezerot", "Freeze rotation of object.")]
         class FreezeRotation : Command
         {
             [CommandParameter("Rigidbody")]
@@ -1027,7 +1079,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_usegravity", "Freeze position of object")]
+        [ConsoleCommand("rb_usegravity", "Freeze position of object.")]
         class Usegravity : Command
         {
             [CommandParameter("Rigidbody")]

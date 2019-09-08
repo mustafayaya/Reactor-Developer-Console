@@ -353,6 +353,10 @@ namespace Console
             {
                 foreach (Command command in invokeDefinitions)
                 {
+                   if (command.commandParameters.Count != 0)
+                     {
+
+
                     var keys = command.commandParameters.Keys.ToList();
                     List<bool> vs = new List<bool>();
                     for (int i = 0; i < keys.Count; i++)
@@ -382,8 +386,20 @@ namespace Console
                         continue;
                     }
                     return command;
+                    }
                 }
-                return invokeDefinitions[0];
+
+                try
+                {
+                    var firstAvailableCommand = invokeDefinitions.FindAll(x => x.commandParameters.Count != 0)[0];
+                    return firstAvailableCommand;
+                }
+                catch
+                {
+                    return null;
+                }
+
+
             }
         }
 
