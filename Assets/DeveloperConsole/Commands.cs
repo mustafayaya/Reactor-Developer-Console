@@ -1029,31 +1029,6 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_freezepos", "Freeze position of object", true)]
-        class FreezePozition : Command
-        {
-            [CommandParameter("Rigidbody")]
-            public Rigidbody Rigidbody;
-            [CommandParameter("bool")]
-            public bool value;
-
-
-            public override ConsoleOutput Logic()
-            {
-                base.Logic();
-                if (value)
-                {
-                    Rigidbody.constraints = RigidbodyConstraints.FreezePositionX | RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezePositionY; 
-                }
-                if (value)
-                {
-                    Rigidbody.constraints = RigidbodyConstraints.None;
-                }
-                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
-
-            }
-        }
-
         [ConsoleCommand("rb_usegravity", "Freeze position of object", true)]
         class Usegravity : Command
         {

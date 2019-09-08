@@ -41,6 +41,8 @@ namespace Console
         public string input = "help";//Describe input string for console input field. Set default text here.
 
         private static bool created = false;
+
+        #region statics
         public static DeveloperConsole Instance//Singleton
         {
             get
@@ -52,6 +54,122 @@ namespace Console
                 return FindObjectOfType<DeveloperConsole>();
             }
         }
+
+
+        public void Write(ConsoleOutput consoleOutput)//Write simple line
+        {
+            consoleOutputs.Add(consoleOutput);
+            Instance.scrollDownTrigger = true;
+        }
+
+
+        public static void WriteUser(object input)//Write user line without time tag
+        {
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.User, false);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+        public static void WriteSystem(object input)
+        {
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.System);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+        public static void WriteLine(object input)//Write line without time tag
+        {
+            if (!Instance.printLogs)
+            {
+                return;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log, false);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+        public static void WriteLog(object input)
+        {
+            if (!Instance.printLogs)
+            {
+                return;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+
+        public static void WriteWarning(object input)
+        {
+            if (!Instance.printWarnings)
+            {
+                return;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Warning);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+        public static void WriteError(object input)
+        {
+            if (!Instance.printErrors)
+            {
+                return;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Error);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;
+        }
+        public static void WriteNetwork(object input)
+        {
+            if (!Instance.printNetwork)
+            {
+                return;
+            }
+            if (Instance.consoleOutputs.Count != 0)
+            {
+                if (Instance.consoleOutputs.Last().output == input.ToString())
+                {
+                    return;
+
+                }
+            }
+            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Network);
+            Instance.consoleOutputs.Add(output);
+            Instance.scrollDownTrigger = true;            
+        }
+
+        #endregion
+
+
 
         public void Awake()
         {
@@ -200,143 +318,12 @@ namespace Console
             WriteSystem("There is no command such as '" + _input + "'");
         }
 
-
-
-        public void Execute(Command command)
-        {
-            var output = command.Logic(); //Execute the command and get output
-            if (!String.IsNullOrEmpty(output.output))
-            {
-                Write(output);
-
-            }
-            Instance.scrollDownTrigger = true;
-        }
-
-        public static bool WriteUser(object input)//Write simple line
-        {
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.User, false);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteSystem(object input)//Write simple line
-        {
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.System);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteLine(object input)//Write simple line
-        {
-            if (!Instance.printLogs)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if(Instance.consoleOutputs.Last().output == input.ToString())
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log, false);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteLog(object input)
-        {
-            if (!Instance.printLogs)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if (Instance.consoleOutputs.Last().output == input.ToString())
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-
-        public static bool WriteWarning(object input)
-        {
-            if (!Instance.printWarnings)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if (Instance.consoleOutputs.Last().output == input.ToString())
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Warning);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteError(object input)
-        {
-            if (!Instance.printErrors)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if (Instance.consoleOutputs.Last().output == input.ToString())
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Error);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public static bool WriteNetwork(object input)
-        {
-            if (!Instance.printNetwork)
-            {
-                return false;
-            }
-            if (Instance.consoleOutputs.Count != 0)
-            {
-                if (Instance.consoleOutputs.Last().output == input.ToString())
-                {
-                    return false;
-
-                }
-            }
-            ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Network);
-            Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-        public bool Write(ConsoleOutput consoleOutput)
-        {
-            consoleOutputs.Add(consoleOutput);
-            Instance.scrollDownTrigger = true;
-            return true;
-        }
-
-
         public static Command CommandQuery(string[] inputKeywords)//Return the possible targeteted command invoke definition by user
         {
             //Invoke definitions of entered command 
-            List<Command> invokeDefinitions = Commands.Instance.GetCommands().ToList().FindAll(x=>x.GetQueryIdentity() == inputKeywords[0]);
+            List<Command> invokeDefinitions = Commands.Instance.GetCommands().ToList().FindAll(x => x.GetQueryIdentity() == inputKeywords[0]);
 
-            if (inputKeywords.Length == 1 )
+            if (inputKeywords.Length == 1)
             {
                 if (invokeDefinitions.Count != 0)
                 {
@@ -348,10 +335,8 @@ namespace Console
                         }
                     }
                     return invokeDefinitions[0];
-
                 }
                 return null;
-
             }
             else
             {
@@ -359,7 +344,7 @@ namespace Console
                 {
                     var keys = command.commandParameters.Keys.ToList();
                     List<bool> vs = new List<bool>();
-                    for (int i = 0; i < keys.Count;i++)
+                    for (int i = 0; i < keys.Count; i++)
                     {
                         Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
                         MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
@@ -380,25 +365,19 @@ namespace Console
                         {
                             vs.Add(false);
                         }
-
                     }
-
                     if (vs.Contains(false))
                     {
                         continue;
                     }
                     return command;
                 }
-
                 return invokeDefinitions[0];
             }
-
-
         }
 
         public static object ParamQuery<T>(string parameter)//Make query with given parameter and type
         {
-
             if (typeof(T).IsSubclassOf(typeof(Component)))
             {
                 Component query = null;
@@ -406,23 +385,18 @@ namespace Console
                 var go = GameObject.Find(parameter);
                 if (go != null && go.TryGetComponent(typeof(T), out query))
                 {
-
                     return query;
                 }
-                else if(go != null && !go.TryGetComponent(typeof(T), out query))
+                else if (go != null && !go.TryGetComponent(typeof(T), out query))
                 {
                     WriteError(parameter + " doesn't have a " + typeof(T));
                     return query;
-
                 }
-
-
                 return query;
-                }
-            
+            }
+
             else
             {
-
                 if (Utility.TryConvert(parameter, typeof(T)))//If parameter string is convertable directly to T return converted 
                 {
                     var covertedParam = (T)Convert.ChangeType(parameter, typeof(T));
@@ -454,18 +428,23 @@ namespace Console
 
                     }
                     return null;
-
                 }
-
                 return null;
-
-
             }
-
-
-
         }
 
+        public void Execute(Command command)
+        {
+            var output = command.Logic(); //Execute the command and get output
+            if (!String.IsNullOrEmpty(output.output))
+            {
+                Write(output);
+
+            }
+            Instance.scrollDownTrigger = true;
+        }
+
+       
 
         int _historyState = -1;
         public void InputHistoryHandler()//Restore saved inputs 
