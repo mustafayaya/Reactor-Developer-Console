@@ -25,9 +25,6 @@ namespace Console {
             description = _description;
         }
 
-
-
-
         /// <summary>
         /// If true, this command will be available at only developer builds
         /// </summary>

@@ -1,4 +1,15 @@
-﻿using System;
+﻿/*
+ * Reactor Developer Console
+ * Engineered by Mustafa Yaya @2019 
+ * 
+ * Licence: Commercial
+ * Cannot be sold as a product.
+ * 
+ * GitHub
+ * https://mustafayaya.github.io/Unity-Developer-Console/
+ */
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;

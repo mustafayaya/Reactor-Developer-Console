@@ -922,7 +922,7 @@ namespace Console
         }
 
 
-        [ConsoleCommand("culture", "Set the culture", true)]
+        [ConsoleCommand("culture", "Set the culture")]
         class CultureSet : Command
         {
             [CommandParameter("CultureInfo")]
@@ -930,16 +930,13 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
                 var cultureInfo = value;
 
                 return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
 
             }
-
-
         }
-        [ConsoleCommand("culture", "Get the culture", true)]
+        [ConsoleCommand("culture", "Get the culture")]
         class CultureGet : Command
         {
 
@@ -953,7 +950,7 @@ namespace Console
             }
 
         }
-        [ConsoleCommand("rb_addforce", "Addforce to a rigidbody", true)]
+        [ConsoleCommand("rb_addforce", "Addforce to a rigidbody")]
         class Addforce : Command
         {
             [CommandParameter("Rigidbody")]
@@ -972,7 +969,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_mass", "Set mass of rigidbody", true)]
+        [ConsoleCommand("rb_mass", "Set mass of rigidbody")]
         class SetMass : Command
         {
             [CommandParameter("Rigidbody")]
@@ -991,7 +988,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_drag", "Set drag of object", true)]
+        [ConsoleCommand("rb_drag", "Set drag of object")]
         class SetDrag : Command
         {
             [CommandParameter("Rigidbody")]
@@ -1009,7 +1006,7 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("rb_freezerot", "Freeze rotation of object", true)]
+        [ConsoleCommand("rb_freezerot", "Freeze rotation of object")]
         class FreezeRotation : Command
         {
             [CommandParameter("Rigidbody")]
@@ -1029,7 +1026,7 @@ namespace Console
             }
         }
 
-        [ConsoleCommand("rb_usegravity", "Freeze position of object", true)]
+        [ConsoleCommand("rb_usegravity", "Freeze position of object")]
         class Usegravity : Command
         {
             [CommandParameter("Rigidbody")]

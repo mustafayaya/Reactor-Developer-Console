@@ -6,7 +6,6 @@ namespace Console
 {
     public class WireframeWidget : MonoBehaviour
     {
-
         void OnPreRender()
         {
             GL.wireframe = true;

@@ -1,39 +1,84 @@
-# Cesare 
-### Simple Open Source Unity 3D Developer Console
+﻿# Reactor Console 
+### Debug your build, create your own commands easily.
 
-Debug your build, create your own commands easily!
+So I was working for my souls-like game and I came up with this tool. I thought sharing with community would be useful. Thus I made simple revisions and I added useful commands that I needed when I was debugging & developing a product. 
 
-![](Images/image1.png )
+# Features
+- Lean and resizeable user interface
+- Powerful built-in commands
+- Simple and modular command system
+- Input predictions and hints
+- Output filter system
+- Input history system
+
+#Anatomy
+
+![](Images/anatomy.png )
+
+There are 4 filterable output types as Log, Warning, Error and Network that you can filter at upper left corner. You can resize the window with the drag at the lower right corner. 
+
+![](Images/hint.png )
+
+It will draw predictions with your input. You can navigate on predictions with  ` ↓ , ↑ ` keys. Submitted inputs can be remembered later by pressing  ` ↑ ` .
 
 # Implementing to your project
 1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases) and import to your project.
-
 2-Drag the "Developer Console" prefab to your scene.
 
-3-Use  ```DeveloperConsole._instance.active``` boolean as open end.
+Defaultly `F4` is gonna open the console. 
 
-Don't forget to reference  ```using Console;``` to your C# script.
-It is ready to use!
+# Adding new commands
+Reactor console supports adding commands and parameters using attributes. There can be more than one invoke definitions for each command. Built-in commands are stored in `Commands.cs`.
 
-![](Images/codes.png )
+For adding a new command you have to create a new class inherits from `Console.Command` and attribute it with `ConsoleCommand` attribute.
+
+ 	//Define command query identity, description and optionally for only developer version mode
+   	[ConsoleCommand("culture", "Set the culture", true)]
+	class CultureSet : Command]//Inherits class from Console.Command
+        {
+            [CommandParameter("CultureInfo")] //Add parameter for command
+            public System.Globalization.CultureInfo value;
+			
+            public override ConsoleOutput Logic() //Virtual logic method for every command,
+            {
+                base.Logic();
+                var cultureInfo = value;//Command logic
+				
+		//Return console output with message, output type and optionally time signature
+                return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
+
+            }
+        }
+
+In this example we have set current culture to provided CultureInfo by user. But what if user wants to print the current culture instead of changing it? We should move on to another invoke definition.
 
 
-# Creating commands
-1-Create new class in Commands.cs which inherited from ```class Command```.
+		 //We've added the same command again, but now there is no parameter. 
+		 //Now user can type only "culture" to get culture information.
+		 [ConsoleCommand("culture", "Get the culture")]
+		class CultureGet : Command
+        {
+			//No parameters
+            public override ConsoleOutput Logic()
+            {
+                base.Logic();
+                var oldCulture = System.Globalization.CultureInfo.CurrentCulture.Name;
 
-2-Set definiton of your new class and add query identity, description, command options global command variables .
+                return new ConsoleOutput("Culture is " + oldCulture, ConsoleOutput.OutputType.Log, false);
 
-3-Override  ```public ConsoleOutput Logic()``` method and add your command's logic here. Return output with a new  ```ConsoleOutput```.
+            }
+        }
 
-4-Add your command class ```_commands.Add(new Help());``` to the list at ```public void RegisterCommands()``` method.
 
-Your command is ready!
-
-# Adding custom GUISkin
-1-Drag your GUISkin to ```Style``` variable in DeveloperConsole.cs.
-
-2-Make sure that you have a font on TextArea style or you will get error.
-
+If there are two same invoke definitions(same query identity and same parameters) one of them will be ignored.
 
 # Have a problem?
-Ask in forum or [contact me.](mustafa.yaya@outlook.com.tr)
+Search in repo wiki, ask in forum or [contact me.](mustafa.yaya@outlook.com.tr)
+
+# Donations
+I am a game developer and student. Feel free to donate and help me make living. =)
+
+Branch name: İSTANBUL
+IBAN: 1299-0576407
+TR08 0006 4000 0011 2990 5764 07
+
