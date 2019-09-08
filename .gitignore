@@ -11,3 +11,7 @@ ProjectSettings
 Packages
 Temp
 >>>>>>> master
+/Assets/Builtin skin
+/Assets/Builtin skin.meta
+/Assets/ShowSkin.cs
+/Assets/ShowSkin.cs.meta
