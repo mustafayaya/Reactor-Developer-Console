@@ -4,7 +4,8 @@
 So I was working for my souls-like game and I came up with this tool. I thought sharing with community would be useful. Thus I made simple revisions and I added useful commands that I needed when I was debugging & developing a product. 
 
 # Implementing to your project
-1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases) and import to your project.
+1-[Download the latest version](https://github.com/mustafayaya/Unity-Developer-Console/releases/latest) and import to your project.
+
 2-Drag the "Developer Console" prefab to your scene.
 
 Defaultly `F4` is gonna open the console. 
@@ -20,7 +21,7 @@ Defaultly `F4` is gonna open the console.
 - Input history system
 
 
-#Anatomy
+# Anatomy
 
 ![](Images/anatomy.png )
 
@@ -30,7 +31,7 @@ You can filter output at upper left corner. You can resize the window with the d
 
 It will draw predictions with your input. You can navigate on predictions with  ` ↓ , ↑ ` keys. Submitted inputs can be restored later by pressing  ` ↑ ` .
 
-#Console Syntax
+# Console Syntax
 
 Anatomy of provided input must be like this;
 
