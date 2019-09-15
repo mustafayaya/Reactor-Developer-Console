@@ -1,12 +1,14 @@
 ﻿/*
  * Reactor Developer Console
- * Engineered by Mustafa Yaya @2019 
+ * Developed by Mustafa Yaya @2019 
  * 
- * Licence: Commercial
- * Cannot be sold as a product.
+ * Licence: MIT
  * 
  * GitHub
- * https://mustafayaya.github.io/Unity-Developer-Console/
+ * https://mustafayaya.github.io/Reactor-Developer-Console/
+ * 
+ * Unity Forum
+ * https://forum.unity.com/threads/reactor-open-source-developer-console.741614/
  */
 
 using System;
@@ -22,8 +24,16 @@ namespace Console
     public class DeveloperConsole : MonoBehaviour
     {
         private static DeveloperConsole _instance;
-       [Header("Console Settings")]
-        public bool active = true; //If active, draw console on UI
+        [Header("Console Settings")]
+
+        [SerializeField]
+        private bool _active = true;
+        public static bool active
+        {
+            get { return DeveloperConsole.Instance._active; }
+            set { DeveloperConsole.Instance._active = value; }
+        }
+
         public bool printLogs = true;
         public bool printWarnings = true;
         public bool printErrors = true;
@@ -38,7 +48,7 @@ namespace Console
         public GUISkin skin;
         public int lineSpacing = 20;//Set spacing between output lines
         public int inputLimit = 64;//Set maximum console input limit
-        public Color userOutputColor = Color.HSVToRGB(0,0,0.75f);
+        public Color userOutputColor = Color.HSVToRGB(0, 0, 0.75f);
         public Color systemOutputColor = Color.HSVToRGB(0, 0, 0.90f);
         public Color logOutputColor = Color.HSVToRGB(0, 0, 0.90f);
         public Color warningOutputColor = Color.yellow;
@@ -48,9 +58,9 @@ namespace Console
         public List<ConsoleOutput> consoleOutputs = new List<ConsoleOutput>();//List outputs here
         private Vector2 scrollPosition = Vector2.zero;//Determine output window's scroll position
         private bool scrollDownTrigger;
-        private Rect windowRect = new Rect(200, 200, Screen.width * 50 / 100, Screen.height * 60 / 100);
+        private Rect windowRect;
         public string input = "help";//Describe input string for console input field. Set default text here.
-
+        public bool drawCloseButtonOnMobile = true;
         private static bool created = false;
 
         #region statics
@@ -175,11 +185,12 @@ namespace Console
             }
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Network);
             Instance.consoleOutputs.Add(output);
-            Instance.scrollDownTrigger = true;            
+            Instance.scrollDownTrigger = true;
         }
 
         #endregion
 
+        Resolution _res;
 
 
         public void Awake()
@@ -195,18 +206,22 @@ namespace Console
                 Destroy(this.gameObject);
             }
         }
-         
+
         public void Start()
         {
             commands = Commands.Instance;//Instantiate commands
             WriteSystem(Utility.AwakeMessage());
             Application.logMessageReceived += new Application.LogCallback(this.PrintUnityOutput);
-            
+#if UNITY_STANDALONE
+            windowRect = new Rect(200, 200, Screen.width * 1 / 2, Screen.height * 3 / 5);
+#else
+            windowRect = new Rect(0, 0, Screen.width, Screen.height);
+#endif
         }
 
         public void Update()
         {
-            if (active)
+            if (_active)
             {
                 if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
                 {
@@ -214,6 +229,16 @@ namespace Console
                 }
                 OutputFilterHandler();
                 OutputManager();
+            }
+            if (_res.height != Screen.currentResolution.height || _res.width != Screen.currentResolution.width)
+            {
+#if UNITY_STANDALONE
+                windowRect = new Rect(windowRect.x, windowRect.y, Mathf.Clamp(windowRect.width, 140, Screen.width), Mathf.Clamp(windowRect.height, 140, Screen.height));
+#else
+                windowRect = new Rect(0, 0, Screen.width, Screen.height);
+#endif
+                _res = Screen.currentResolution;
+
             }
         }
 
@@ -264,7 +289,7 @@ namespace Console
         public void SubmitInput(string _input)//Submit input string to console query
         {
             _input.Trim();
-            WriteUser("} " + _input );
+            WriteUser("} " + _input);
             QueryInput(_input);
             inputHistory.Add(_input);
             input = "";
@@ -272,16 +297,17 @@ namespace Console
             submitFocusTrigger = true;
         }
 
-        
+
         public void QueryInput(string _input)//Make query with given input
         {
 
             var _inputParams = GetInputParameters(_input);
             var commandQuery = CommandQuery(_inputParams);
 
-            if (commandQuery != null) { 
-                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(commandQuery.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity.ToLower() == _inputParams[0].ToLower())
-                    {
+            if (commandQuery != null)
+            {
+                if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(commandQuery.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity.ToLower() == _inputParams[0].ToLower())
+                {
                     if (_inputParams.Length != 1)
                     {
                         var keys = commandQuery.commandParameters.Keys.ToArray();
@@ -302,22 +328,22 @@ namespace Console
                             var query = genericQuery.Invoke(this, new object[] { (_inputParams[i + 1]) });
 
                             if (query != null)
-                                {
+                            {
                                 commandQuery.commandParameters[keys[i]].Value = query;
-                                }
+                            }
                             else
-                                {
-                                    WriteError("Parameter [" + keys[i] + "] is given wrong.");
-                                    return;
-                                }
-                         
+                            {
+                                WriteError("Parameter [" + keys[i] + "] is given wrong.");
+                                return;
+                            }
+
                         }
                         Execute(commandQuery);
                         return;
                     }
                     else if (_inputParams.Length < commandQuery.commandParameters.Keys.Count + 1)
                     {
-                        WriteError("No invoke definiton for command '"+ commandQuery.GetQueryIdentity()+"' takes "+ (_inputParams.Length - 1) + " parameters.");
+                        WriteError("No invoke definiton for command '" + commandQuery.GetQueryIdentity() + "' takes " + (_inputParams.Length - 1) + " parameters.");
                         return;
                     }
 
@@ -353,39 +379,39 @@ namespace Console
             {
                 foreach (Command command in invokeDefinitions)
                 {
-                   if (command.commandParameters.Count != 0)
-                     {
-
-
-                    var keys = command.commandParameters.Keys.ToList();
-                    List<bool> vs = new List<bool>();
-                    for (int i = 0; i < keys.Count; i++)
+                    if (command.commandParameters.Count != 0)
                     {
-                        Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
-                        MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
-                        MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
-                        Type t = command.commandParameters[keys[i]].genericType.GetType();
-                        if (inputKeywords.Length - 1 <= i + 1)
+
+
+                        var keys = command.commandParameters.Keys.ToList();
+                        List<bool> vs = new List<bool>();
+                        for (int i = 0; i < keys.Count; i++)
                         {
-                            //Not enough parameters for this invoke method
+                            Type genericTypeArgument = command.commandParameters[keys[i]].GetType().GenericTypeArguments[0];
+                            MethodInfo method = typeof(DeveloperConsole).GetMethod("ParamQuery");
+                            MethodInfo genericQuery = method.MakeGenericMethod(genericTypeArgument);
+                            Type t = command.commandParameters[keys[i]].genericType.GetType();
+                            if (inputKeywords.Length - 1 <= i + 1)
+                            {
+                                //Not enough parameters for this invoke method
+                                continue;
+                            }
+                            var query = genericQuery.Invoke(DeveloperConsole.Instance, new object[] { (inputKeywords[i + 1]) });
+
+                            if (query != null)
+                            {
+                                vs.Add(true);
+                            }
+                            else
+                            {
+                                vs.Add(false);
+                            }
+                        }
+                        if (vs.Contains(false))
+                        {
                             continue;
                         }
-                        var query = genericQuery.Invoke(DeveloperConsole.Instance, new object[] { (inputKeywords[i + 1]) });
-
-                        if (query != null)
-                        {
-                            vs.Add(true);
-                        }
-                        else
-                        {
-                            vs.Add(false);
-                        }
-                    }
-                    if (vs.Contains(false))
-                    {
-                        continue;
-                    }
-                    return command;
+                        return command;
                     }
                 }
 
@@ -410,16 +436,18 @@ namespace Console
                 Component query = null;
 
                 var go = GameObject.Find(parameter);
-                if (go != null && go.TryGetComponent(typeof(T), out query))
+                if (go != null)
                 {
-                    return query;
-                }
-                else if (go != null && !go.TryGetComponent(typeof(T), out query))
-                {
+                    query = go.GetComponent(typeof(T));
+                    if (query != null)
+                    {
+                        return query;
+
+                    }
                     WriteError(parameter + " doesn't have a " + typeof(T));
-                    return query;
                 }
                 return query;
+
             }
 
             else
@@ -471,7 +499,7 @@ namespace Console
             Instance.scrollDownTrigger = true;
         }
 
-       
+
 
         int _historyState = -1;
         public void InputHistoryHandler()//Restore saved inputs 
@@ -480,17 +508,17 @@ namespace Console
             {
                 _historyState = inputHistory.Count - 1;
             }
-                if (inputHistory.Count != 0)
+            if (inputHistory.Count != 0)
+            {
+                if (_historyState == -1)
                 {
-                    if (_historyState == -1)
-                    {
-                        _historyState = inputHistory.Count - 1;
-                    }
-                    else
-                    {
+                    _historyState = inputHistory.Count - 1;
+                }
+                else
+                {
                     if (_historyState == 0)
                     {
-                        _historyState =inputHistory.Count - 1;
+                        _historyState = inputHistory.Count - 1;
                     }
                     else
                     {
@@ -498,12 +526,12 @@ namespace Console
 
                     }
                 }
-                }
+            }
 
-                if (_historyState != -1)
-                {
-                    input = inputHistory[Mathf.Clamp(_historyState, -1, inputHistory.Count)];
-                }
+            if (_historyState != -1)
+            {
+                input = inputHistory[Mathf.Clamp(_historyState, -1, inputHistory.Count)];
+            }
         }
 
         public List<string> inputHistory = new List<string>();
@@ -511,25 +539,36 @@ namespace Console
 
         void OnGUI()
         {
-            if (active)//If active, draw console window
+            if (_active)//If active, draw console window
             {
                 GUI.depth = 1;
-
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
             }
-     
+            else if (drawCloseButtonOnMobile)
+            {
+#if UNITY_STANDALONE
+
+#else
+                if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5), "-", skin.GetStyle("exitButton")) )
+                {
+                    _active = !_active;
+                }
+#endif
+            }
+
         }
 
         void ConsoleWindow(int windowID)
         {
+
             printLogs = GUI.Toggle(new Rect(10, 5, 10, 10), printLogs, "", skin.GetStyle("logButton"));
             printWarnings = GUI.Toggle(new Rect(25, 5, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
             printErrors = GUI.Toggle(new Rect(40, 5, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
             printNetwork = GUI.Toggle(new Rect(55, 5, 10, 10), printNetwork, "", skin.GetStyle("networkButton"));
 
-            if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5),"-", skin.GetStyle("exitButton")))
+            if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5), "-", skin.GetStyle("exitButton")))
             {
-                active = !active;
+                _active = !_active;
             }
 
             if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyDown)
@@ -540,10 +579,11 @@ namespace Console
                     FocusOnInputField(false);
                 }
             }
-
+#if UNITY_STANDALONE
             GUI.SetNextControlName("dragHandle");
 
             GUI.DragWindow(new Rect(0, 0, windowRect.width, 20));//Draw drag handle of window
+#endif
             int scrollHeight = 0;
             GUI.SetNextControlName("outputBox");
 
@@ -569,29 +609,29 @@ namespace Console
 
             GUI.SetNextControlName("textArea");
             DrawOutput();
-            
+
             GUI.EndScrollView();
 
             GUI.SetNextControlName("submitButton");
 
-            if ( GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
+            if (GUI.Button(new Rect(windowRect.width - 130, windowRect.height - 45, 80, 25), "Submit", skin.button))
             {
                 if (!String.IsNullOrEmpty(input))
                 {
                     SubmitInput(input);
                     scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 40);
                 }
-               
+
             }
 
             if (inputFocusTrigger)
             {
                 FocusOnInputField(false);
-                
+
             }
-            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp )
+            if (!String.IsNullOrEmpty(input) && Event.current.keyCode == KeyCode.Return && Event.current.type == EventType.KeyUp)
             {
-                
+
                 if (GUI.GetNameOfFocusedControl() == "consoleInputField" || GUI.GetNameOfFocusedControl() == "")
                 {
                     if (inputFocusTrigger)
@@ -629,7 +669,7 @@ namespace Console
             }
 
             GUI.Box(new Rect(windowRect.width - 15, windowRect.height - 15, 10, 10), "", skin.GetStyle("corner"));
-            
+
             WindowResizeHandler();
         }
 
@@ -646,7 +686,7 @@ namespace Console
                     }
                 }
                 //Debug.Log("Space :" + space + "Lines : " + consoleOutputs.Count);
-                ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 20, lineSpacing), consoleOutputs[i], skin.label);
+                ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 60, lineSpacing), consoleOutputs[i], skin.label);
             }
         }
 
@@ -658,8 +698,9 @@ namespace Console
             var mousePos = Input.mousePosition;
             mousePos.y = Screen.height - mousePos.y;    // Convert to GUI coords
             var windowHandle = new Rect(windowRect.x + windowRect.width - 20, windowRect.y + windowRect.height - 20, 20, 20);
-                // If clicked on window resize widget
-            if (Input.GetMouseButtonDown(0) && windowHandle.Contains(mousePos)) {
+            // If clicked on window resize widget
+            if (Input.GetMouseButtonDown(0) && windowHandle.Contains(mousePos))
+            {
                 handleClicked = true;
                 clickedPosition = mousePos;
                 _window = windowRect;
@@ -682,7 +723,7 @@ namespace Console
         }
 
 
-     
+
 
         bool inputFocusTrigger;
 
@@ -759,7 +800,7 @@ namespace Console
             var charList = _input.ToCharArray();
             bool readingParam = false;
             string _param = "";
-            for (int i = 0; i< _input.Length; i++)
+            for (int i = 0; i < _input.Length; i++)
             {
                 if (charList[i] == '(' && !readingParam)
                 {
@@ -787,7 +828,7 @@ namespace Console
                     readingParam = false;
 
                 }
-                if (i == _input.Length -1 && !String.IsNullOrEmpty(_param))
+                if (i == _input.Length - 1 && !String.IsNullOrEmpty(_param))
                 {
                     _inputParams.Add(_param);
                     _param = "";

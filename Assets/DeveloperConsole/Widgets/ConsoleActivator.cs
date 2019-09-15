@@ -14,7 +14,7 @@ public class ConsoleActivator : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.F4))
         {
-            Console.DeveloperConsole.Instance.active = !Console.DeveloperConsole.Instance.active;
+            Console.DeveloperConsole.active = !Console.DeveloperConsole.active;
         }
     }
 }

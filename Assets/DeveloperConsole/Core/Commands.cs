@@ -41,8 +41,8 @@ namespace Console
             RegisterCommands();
         }
 
-    
-         public List<Command> GetCommands()
+
+        public List<Command> GetCommands()
         {
 
             return _commands.ToList();
@@ -54,7 +54,7 @@ namespace Console
                 List<Command> commandsSingle = new List<Command>();
                 foreach (Command command in _commands)
                 {
-                    if (commandsSingle.Find(x=> x.GetQueryIdentity() == command.GetQueryIdentity()) == null)
+                    if (commandsSingle.Find(x => x.GetQueryIdentity() == command.GetQueryIdentity()) == null)
                     {
                         commandsSingle.Add(command);
                     }
@@ -76,7 +76,7 @@ namespace Console
                     DeveloperConsole.WriteWarning("Multiple stocking of command '" + command.GetQueryIdentity() + "'. Command will be ignored.");
                     continue;
                 }
-               
+
                 var fields = command.GetType().GetFields();//Set command options
                 foreach (FieldInfo fieldInfo in fields)
                 {
@@ -93,21 +93,21 @@ namespace Console
                 _commands.Add(command);
             }
 
-            
+
             foreach (Command command in _commands.ToList())
             {
                 if (String.IsNullOrEmpty(((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).queryIdentity))
                 {
-                    var message = "Command " + command + "("+ command.GetHashCode()+") doesn't has a query identity. Command will be ignored." ;
+                    var message = "Command " + command + "(" + command.GetHashCode() + ") doesn't has a query identity. Command will be ignored.";
                     Console.DeveloperConsole.WriteWarning(message);
                     _commands.Remove(command);
                 }
 
-                    if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).onlyAllowedOnDeveloperVersion && !Debug.isDebugBuild)
-                    {
-                        _commands.Remove(command);
+                if (((ConsoleCommandAttribute)Attribute.GetCustomAttribute(command.GetType(), typeof(ConsoleCommandAttribute))).onlyAllowedOnDeveloperVersion && !Debug.isDebugBuild)
+                {
+                    _commands.Remove(command);
 
-                    }
+                }
 
                 if (_commands.ToList().Exists(x => x.GetQueryIdentity() == command.GetQueryIdentity() && x != command))//Check multiple stocking with query identity
                 {
@@ -142,7 +142,6 @@ namespace Console
 
                 }
             }
-            
         }
 
         #endregion
@@ -170,7 +169,7 @@ namespace Console
                     lineLength = command.GetQueryIdentity().Length + 1;
 
                     var keys = command.commandParameters.Keys.ToArray();
-                
+
                     for (int i = 0; i < keys.Length; i++)//Add description information to the line
                     {
                         var descriptionInfoString = " [" + keys[i].ToString() + "] ";
@@ -178,7 +177,7 @@ namespace Console
                         lineLength += descriptionInfoString.Length;
                     }
 
-                    for (int i = 40- lineLength; i >0; i--)
+                    for (int i = 40 - lineLength; i > 0; i--)
                     {
                         line += " ";//Set orientation of command description 
                     }
@@ -187,7 +186,7 @@ namespace Console
 
                     commandList += line;
                 }
-                return new ConsoleOutput("Available commands are "+ commandList, ConsoleOutput.OutputType.System);
+                return new ConsoleOutput("Available commands are " + commandList, ConsoleOutput.OutputType.System);
             }
 
         }
@@ -207,7 +206,7 @@ namespace Console
 
                 if (commands.Count == 0)
                 {
-                    return new ConsoleOutput("'"+queryIdentity + "' is not supported by help utility.", ConsoleOutput.OutputType.System);
+                    return new ConsoleOutput("'" + queryIdentity + "' is not supported by help utility.", ConsoleOutput.OutputType.System);
 
                 }
 
@@ -239,7 +238,7 @@ namespace Console
 
                     helpInformationText += line;
                 }
-                return new ConsoleOutput(helpInformationText, ConsoleOutput.OutputType.System,false);
+                return new ConsoleOutput(helpInformationText, ConsoleOutput.OutputType.System, false);
             }
 
         }
@@ -260,12 +259,12 @@ namespace Console
             {
 
                 transform.position = position;
-                return new ConsoleOutput(((Transform)transform).name + " moved to " + position.ToString() , ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput(((Transform)transform).name + " moved to " + position.ToString(), ConsoleOutput.OutputType.Log);
             }
 
         }
 
-       
+
         [ConsoleCommand("rotate", "Rotate a game object.")]
         class Rotate : Command
         {
@@ -302,13 +301,13 @@ namespace Console
 
                 RaycastHit hit;
                 Ray ray = new Ray(Camera.main.transform.position, Camera.main.transform.forward); ;
-                if (Physics.Raycast(ray,out hit))
+                if (Physics.Raycast(ray, out hit))
                 {
                     sphere.transform.position = hit.point;
                 }
                 else
                 {
-                    sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward *5f;
+                    sphere.transform.position = Camera.main.transform.position + Camera.main.transform.forward * 5f;
 
                 }
 
@@ -319,7 +318,7 @@ namespace Console
 
 
 
-        [ConsoleCommand("export","Export this session to a text file.")]
+        [ConsoleCommand("export", "Export this session to a text file.")]
         class Export : Command
         {
 
@@ -330,14 +329,14 @@ namespace Console
                 var outputs = DeveloperConsole.Instance.consoleOutputs;
                 var src = DateTime.Now;
 
-                string fileName = "console-"+src.Year + "-" + src.Hour + "-" + src.Minute+".txt";
+                string fileName = "console-" + src.Year + "-" + src.Hour + "-" + src.Minute + ".txt";
                 string fileContent = "";
 
                 foreach (ConsoleOutput consoleOutput in outputs)
                 {
                     fileContent += consoleOutput.output + "\n";
                 }
-                string filePath = Directory.GetParent(Application.dataPath)+"/Logs/" + fileName;
+                string filePath = Directory.GetParent(Application.dataPath) + "/Logs/" + fileName;
                 var output = File.CreateText(filePath);
 
 
@@ -352,18 +351,19 @@ namespace Console
             }
         }
 
+#if NET_4_6	
         [ConsoleCommand("beep", "Play the sound associated with the beep system event.")]
         class Beep : Command
         {
-
+            
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                System.Media.SystemSounds.Beep.Play();
+                System.media.SystemSounds.Beep.Play();
                 return new ConsoleOutput("Beeping", ConsoleOutput.OutputType.Log);
             }
         }
-
+#endif
         [ConsoleCommand("quit", "Exit the application")]
         class Quit : Command
         {
@@ -385,8 +385,8 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                
-                return new ConsoleOutput(echoText, ConsoleOutput.OutputType.Log,false);
+
+                return new ConsoleOutput(echoText, ConsoleOutput.OutputType.Log, false);
             }
         }
 
@@ -399,19 +399,19 @@ namespace Console
             {
                 base.Logic();
                 Application.targetFrameRate = maxFPS;
-                return new ConsoleOutput("Frame rate limited to " + maxFPS+" frames per second", ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Frame rate limited to " + maxFPS + " frames per second", ConsoleOutput.OutputType.Log);
             }
         }
         [ConsoleCommand("screenshot", "Save a screenshot.")]
         class Screenshot : Command
         {
-            
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
                 var src = DateTime.Now;
                 string fileName = "screenshot-" + src.Year + "-" + src.Hour + "-" + src.Minute + ".png";
-                string filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) +"/"+fileName;
+                string filePath = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures) + "/" + fileName;
                 ScreenCapture.CaptureScreenshot(filePath);
                 return new ConsoleOutput("Screenshot saved to " + filePath + ".", ConsoleOutput.OutputType.Log);
             }
@@ -433,9 +433,9 @@ namespace Console
                     return new ConsoleOutput("Loading level with id " + levelId + ".", ConsoleOutput.OutputType.Log);
 
                 }
-                
-                    UnityEngine.SceneManagement.SceneManager.LoadScene(targetLevel);
-                    return new ConsoleOutput("Loading level " + targetLevel + ".", ConsoleOutput.OutputType.Log);
+
+                UnityEngine.SceneManagement.SceneManager.LoadScene(targetLevel);
+                return new ConsoleOutput("Loading level " + targetLevel + ".", ConsoleOutput.OutputType.Log);
 
             }
         }
@@ -464,11 +464,11 @@ namespace Console
                 }
                 catch (Exception ex)
                 {
-                    return new ConsoleOutput("Transmit faild. "+ ex.Message , ConsoleOutput.OutputType.Error);
+                    return new ConsoleOutput("Transmit faild. " + ex.Message, ConsoleOutput.OutputType.Error);
 
                 }
 
-                return new ConsoleOutput("Reply from " + reply.Address + ": bytes=" + reply.Buffer.Length+" time=" + reply.RoundtripTime+"ms Status=" + reply.Status, ConsoleOutput.OutputType.Network);
+                return new ConsoleOutput("Reply from " + reply.Address + ": bytes=" + reply.Buffer.Length + " time=" + reply.RoundtripTime + "ms Status=" + reply.Status, ConsoleOutput.OutputType.Network);
 
             }
         }
@@ -529,7 +529,7 @@ namespace Console
 
             }
         }
-     
+
 
 
         [ConsoleCommand("hourglass", "Print the time since startup.")]
@@ -538,7 +538,7 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                return new ConsoleOutput("Engine is running for "+(int)Time.realtimeSinceStartup + " seconds." , ConsoleOutput.OutputType.Log);
+                return new ConsoleOutput("Engine is running for " + (int)Time.realtimeSinceStartup + " seconds.", ConsoleOutput.OutputType.Log);
 
             }
         }
@@ -569,7 +569,7 @@ namespace Console
 
                 RenderSettings.fogColor = Color;
 
-                return new ConsoleOutput("", ConsoleOutput.OutputType.Log,false);
+                return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
 
             }
         }
@@ -629,14 +629,14 @@ namespace Console
         class Drawcalls : Command
         {
 
-        
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
                 var bytes = UnityEngine.Profiling.Profiler.GetAllocatedMemoryForGraphicsDriver();
 
 
-                return new ConsoleOutput(bytes+" bytes", ConsoleOutput.OutputType.Log, false);
+                return new ConsoleOutput(bytes + " bytes", ConsoleOutput.OutputType.Log, false);
 
             }
         }
@@ -712,6 +712,8 @@ namespace Console
 
             }
         }
+
+#if UNITY_2019
         [ConsoleCommand("phys_maxangular", "Set the maximum angular speed.")]
         class Phys_Maxangular : Command
         {
@@ -741,7 +743,7 @@ namespace Console
 
             }
         }
-
+#endif
         [ConsoleCommand("ren_shadows", "Determine which type of shadows should be used. 0-Disable 1-Hard Only 2-All")]
         class Ren_Shadowquality : Command
         {
@@ -900,7 +902,7 @@ namespace Console
         [ConsoleCommand("restart", "Restart the game on the same level.")]
         class Restart : Command
         {
- 
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -925,7 +927,7 @@ namespace Console
 
             }
         }
-
+#if UNITY_STANDALONE
         [ConsoleCommand("net_clusterstat", "Print the status of cluster network.")]
         class Net_ClusterStatus : Command
         {
@@ -939,7 +941,8 @@ namespace Console
 
             }
         }
-        [ConsoleCommand("ren_wireframe", "Enable wireframe mode.",true)]
+#endif
+        [ConsoleCommand("ren_wireframe", "Enable wireframe mode.", true)]
         class Ren_wireframe : Command
         {
             [CommandParameter("bool")]
@@ -985,7 +988,7 @@ namespace Console
                 var cultureInfo = value;
                 System.Globalization.CultureInfo.CurrentCulture = value;
 
-                return new ConsoleOutput("Culture is now "+ cultureInfo, ConsoleOutput.OutputType.Log, false);
+                return new ConsoleOutput("Culture is now " + cultureInfo, ConsoleOutput.OutputType.Log, false);
 
             }
         }
@@ -1017,7 +1020,7 @@ namespace Console
 
                 Rigidbody.AddForce(force);
 
-                return new ConsoleOutput("Force " + force.ToString()+ " applied to object "+ Rigidbody.name, ConsoleOutput.OutputType.Log, true);
+                return new ConsoleOutput("Force " + force.ToString() + " applied to object " + Rigidbody.name, ConsoleOutput.OutputType.Log, true);
 
             }
         }
@@ -1067,7 +1070,7 @@ namespace Console
             [CommandParameter("bool")]
             public bool value;
 
- 
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1091,9 +1094,9 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                
-                    Rigidbody.useGravity = value;
-                
+
+                Rigidbody.useGravity = value;
+
                 return new ConsoleOutput("", ConsoleOutput.OutputType.Log, false);
 
             }
