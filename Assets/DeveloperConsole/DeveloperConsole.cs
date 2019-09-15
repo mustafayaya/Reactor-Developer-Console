@@ -1,9 +1,8 @@
 ﻿/*
  * Reactor Developer Console
- * Engineered by Mustafa Yaya @2019 
+ * Developed by Mustafa Yaya @2019 
  * 
- * Licence: Commercial
- * Cannot be sold as a product.
+ * Licence: MIT
  * 
  * GitHub
  * https://mustafayaya.github.io/Unity-Developer-Console/
@@ -50,7 +49,7 @@ namespace Console
         private bool scrollDownTrigger;
         private Rect windowRect;
         public string input = "help";//Describe input string for console input field. Set default text here.
-
+        public bool drawCloseButtonOnMobile = true;
         private static bool created = false;
 
         #region statics
@@ -205,7 +204,7 @@ namespace Console
 #if UNITY_STANDALONE
             windowRect = new Rect(200, 200, Screen.width * 1 / 2, Screen.height * 3 / 5);
 #else
-            windowRect = new Rect(0,0, Screen.width, Screen.height);
+            windowRect = new Rect(0, 0, Screen.width, Screen.height);
 #endif
         }
 
@@ -222,11 +221,11 @@ namespace Console
             }
             if (_res.height != Screen.currentResolution.height || _res.width != Screen.currentResolution.width)
             {
-            #if UNITY_STANDALONE
-                windowRect = new Rect(windowRect.x, windowRect.y, Mathf.Clamp(windowRect.width , 140,Screen.width ), Mathf.Clamp(windowRect.height, 140, Screen.height));
-            #else
-            windowRect = new Rect(0,0, Screen.width, Screen.height);
-            #endif
+#if UNITY_STANDALONE
+                windowRect = new Rect(windowRect.x, windowRect.y, Mathf.Clamp(windowRect.width, 140, Screen.width), Mathf.Clamp(windowRect.height, 140, Screen.height));
+#else
+                windowRect = new Rect(0, 0, Screen.width, Screen.height);
+#endif
                 _res = Screen.currentResolution;
 
             }
@@ -534,11 +533,23 @@ namespace Console
                 GUI.depth = 1;
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
             }
+            else if (drawCloseButtonOnMobile)
+            {
+#if UNITY_STANDALONE
+
+#else
+                if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5), "-", skin.GetStyle("exitButton")) )
+                {
+                    active = !active;
+                }
+#endif
+            }
 
         }
 
         void ConsoleWindow(int windowID)
         {
+
             printLogs = GUI.Toggle(new Rect(10, 5, 10, 10), printLogs, "", skin.GetStyle("logButton"));
             printWarnings = GUI.Toggle(new Rect(25, 5, 10, 10), printWarnings, "", skin.GetStyle("warningButton"));
             printErrors = GUI.Toggle(new Rect(40, 5, 10, 10), printErrors, "", skin.GetStyle("errorButton"));
