@@ -22,7 +22,15 @@ namespace Console
     {
         private static DeveloperConsole _instance;
         [Header("Console Settings")]
-        public bool active = true; //If active, draw console on UI
+
+        [SerializeField]
+        private bool _active = true;
+        public static bool active
+        {
+            get { return DeveloperConsole.Instance._active; }
+            set { DeveloperConsole.Instance._active = value; }
+        }
+
         public bool printLogs = true;
         public bool printWarnings = true;
         public bool printErrors = true;
@@ -210,7 +218,7 @@ namespace Console
 
         public void Update()
         {
-            if (active)
+            if (_active)
             {
                 if (Input.GetMouseButton(0) || Input.GetMouseButton(1))//inputFocusTrigger gets true when user presses enter on a prediction button. But if user clicks, make this trigger false
                 {
@@ -528,7 +536,7 @@ namespace Console
 
         void OnGUI()
         {
-            if (active)//If active, draw console window
+            if (_active)//If active, draw console window
             {
                 GUI.depth = 1;
                 windowRect = GUI.Window(0, windowRect, ConsoleWindow, "Developer Console", skin.window);
@@ -540,7 +548,7 @@ namespace Console
 #else
                 if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5), "-", skin.GetStyle("exitButton")) )
                 {
-                    active = !active;
+                    _active = !_active;
                 }
 #endif
             }
@@ -557,7 +565,7 @@ namespace Console
 
             if (GUI.Button(new Rect(windowRect.width - 25, 7, 15, 5), "-", skin.GetStyle("exitButton")))
             {
-                active = !active;
+                _active = !_active;
             }
 
             if (Event.current.keyCode == KeyCode.UpArrow && Event.current.type == EventType.KeyDown)
