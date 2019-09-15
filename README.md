@@ -100,7 +100,7 @@ In this example we have set the current culture to provided CultureInfo by user.
 
 If there are two same invoke definitions(same query identity and same parameters) one of them will be ignored.
 
-# Have a problem?
+# Having an issue?
 Search in repo wiki, ask in forum or [contact me.](mustafa.yaya@outlook.com.tr)
 
 # Donations
