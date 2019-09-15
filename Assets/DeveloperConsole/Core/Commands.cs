@@ -142,7 +142,6 @@ namespace Console
 
                 }
             }
-
         }
 
         #endregion

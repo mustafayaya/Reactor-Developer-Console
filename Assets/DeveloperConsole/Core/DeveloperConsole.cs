@@ -5,7 +5,10 @@
  * Licence: MIT
  * 
  * GitHub
- * https://mustafayaya.github.io/Unity-Developer-Console/
+ * https://mustafayaya.github.io/Reactor-Developer-Console/
+ * 
+ * Unity Forum
+ * https://forum.unity.com/threads/reactor-open-source-developer-console.741614/
  */
 
 using System;
