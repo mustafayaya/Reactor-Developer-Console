@@ -9,10 +9,23 @@ namespace Console
 {
     public class ConsoleOutput
     {
-        public string output;
+        private string _output;
+
         public string dateTime;
         public OutputType outputType;
+        public string output
+        {
+            get
+            {
+                return _output;
+            }
+            set
+            {
+                _output = value;
+                _output = GetConsoleOutputAsMarkup();//format output as markup
+            }
 
+        }
         public int lines;
 
         public enum OutputType
@@ -26,10 +39,10 @@ namespace Console
         }
         public ConsoleOutput(string entry, OutputType type)
         {
+            outputType = type;
             var src = DateTime.Now;
             dateTime = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
             output = entry;
-            outputType = type;
         }
 
         public ConsoleOutput(string entry, OutputType type,bool startsWithTime)
@@ -40,8 +53,50 @@ namespace Console
                 dateTime = "(" + src.Hour + ":" + src.Minute + ":" + src.Second + ") ";
             }
 
-            output = entry;
             outputType = type;
+            output = entry;
+        }
+
+        private string GetConsoleOutputAsMarkup()
+        {
+            string markupOutput = ""; //Markup output for rich text to be returned
+            
+            switch (outputType)
+            {
+                case ConsoleOutput.OutputType.User:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.userOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    break;
+                case ConsoleOutput.OutputType.System:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.systemOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    break;
+                case ConsoleOutput.OutputType.Log:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.logOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    break;
+                case ConsoleOutput.OutputType.Warning:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.warningOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    break;
+                case ConsoleOutput.OutputType.Error:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.errorOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    break;
+                case ConsoleOutput.OutputType.Network:
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(DeveloperConsole.networkOutputColor) + ">";
+                    markupOutput += dateTime + _output;
+                    markupOutput += "</color>" + "\n";
+                    Debug.Log(ColorUtility.ToHtmlStringRGB(DeveloperConsole.networkOutputColor));
+
+                    break;
+            }
+            return markupOutput;
         }
 
     }
