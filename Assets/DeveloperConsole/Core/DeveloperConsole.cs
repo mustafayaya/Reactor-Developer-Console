@@ -537,7 +537,7 @@ namespace Console
         public List<string> inputHistory = new List<string>();
         bool submitFocusTrigger;
 
-        void OnGUI()
+        void OnGUI() //GUI
         {
             if (_active)//If active, draw console window
             {
@@ -608,7 +608,7 @@ namespace Console
             }
 
             GUI.SetNextControlName("textArea");
-            DrawOutput();
+            DrawOutput(scrollHeight);
 
             GUI.EndScrollView();
 
@@ -673,10 +673,13 @@ namespace Console
             WindowResizeHandler();
         }
 
-        private void DrawOutput()
+        private void DrawOutput(int outputHeight)
         {
+            string _markupOutput = ""; //collect the output in this field
+
             for (int i = 0; i < consoleOutputs.Count; i++)
             {
+
                 int space = 0;
                 foreach (ConsoleOutput c in consoleOutputs)
                 {
@@ -686,9 +689,15 @@ namespace Console
                     }
                 }
                 //Debug.Log("Space :" + space + "Lines : " + consoleOutputs.Count);
-                ConsoleOutputText(new Rect(20, 20 + space, windowRect.width - 60, lineSpacing), consoleOutputs[i], skin.label);
+                _markupOutput += GetConsoleOutputMarkupText(new Rect(20, 20 + space, windowRect.width - 60, lineSpacing), consoleOutputs[i], skin.label);
+          
+            
             }
+            
+            GUI.TextArea(new Rect(20,20,windowRect.width -40,outputHeight),_markupOutput,skin.textArea);
         }
+
+
 
         bool handleClicked = false;
         Vector3 clickedPosition;
@@ -746,11 +755,10 @@ namespace Console
 
 
 
-        string ConsoleOutputText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
+        string GetConsoleOutputMarkupText(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
         {
             style.font.RequestCharactersInTexture(consoleOutput.output, style.fontSize, style.fontStyle);
-            var output = consoleOutput.output + "\n";
-            var outputLines = output.Split('\n');
+            var outputLines = consoleOutput.output.Split('\n');
 
             int lines = 0;
             foreach (string line in outputLines)
@@ -761,7 +769,7 @@ namespace Console
                 foreach (char c in charArray)
                 {
                     CharacterInfo characterInfo;
-                    style.font.GetCharacterInfo(c, out characterInfo, style.fontSize);
+                    style.font.GetCharacterInfo(c, out characterInfo, style.fontSize,style.fontStyle);
                     _labelWidth += (int)characterInfo.width;
                 }
                 lines += (int)Mathf.Clamp(Mathf.Floor(_labelWidth / position.width), 0, 128);
@@ -769,28 +777,42 @@ namespace Console
 
             lines += outputLines.Count();
             consoleOutput.lines = lines;
+
+            string markupOutput = ""; //Markup output for rich text to be returned
             switch (consoleOutput.outputType)
             {
                 case ConsoleOutput.OutputType.User:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = userOutputColor } });
+                    markupOutput += "<color=#" +ColorUtility.ToHtmlStringRGB(userOutputColor)+">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n"; 
                     break;
                 case ConsoleOutput.OutputType.System:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = systemOutputColor } });
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(systemOutputColor) + ">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n"; 
                     break;
                 case ConsoleOutput.OutputType.Log:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = logOutputColor } });
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(logOutputColor) + ">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n";
                     break;
                 case ConsoleOutput.OutputType.Warning:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = warningOutputColor } });
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(warningOutputColor) + ">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n";
                     break;
                 case ConsoleOutput.OutputType.Error:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = errorOutputColor } });
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(errorOutputColor) + ">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n";
                     break;
                 case ConsoleOutput.OutputType.Network:
-                    GUI.TextArea(new Rect(position.x, position.y, position.width, lines * 20), consoleOutput.dateTime + consoleOutput.output, new GUIStyle(style) { normal = new GUIStyleState() { textColor = networkOutputColor } });
+                    markupOutput += "<color=#" + ColorUtility.ToHtmlStringRGB(networkOutputColor) + ">";
+                    markupOutput += consoleOutput.dateTime + consoleOutput.output;
+                    markupOutput += "</color>" + "\n";
                     break;
             }
-            return null;
+            return markupOutput;
         }
 
         private string[] GetInputParameters(string _input)

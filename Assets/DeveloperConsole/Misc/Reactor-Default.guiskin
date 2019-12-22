@@ -351,11 +351,12 @@ MonoBehaviour:
   m_textArea:
     m_Name: textarea
     m_Normal:
-      m_Background: {fileID: 11024, guid: 0000000000000000e000000000000000, type: 0}
-      m_ScaledBackgrounds: []
+      m_Background: {fileID: 2800000, guid: 2cc469f2540b5ac47ad603650f842cf3, type: 3}
+      m_ScaledBackgrounds:
+      - {fileID: 0}
       m_TextColor: {r: 0.9019608, g: 0.9019608, b: 0.9019608, a: 1}
     m_Hover:
-      m_Background: {fileID: 11026, guid: 0000000000000000e000000000000000, type: 0}
+      m_Background: {fileID: 0}
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0.79999995, g: 0.79999995, b: 0.79999995, a: 1}
     m_Active:
@@ -367,7 +368,7 @@ MonoBehaviour:
       m_ScaledBackgrounds: []
       m_TextColor: {r: 0, g: 0, b: 0, a: 1}
     m_OnNormal:
-      m_Background: {fileID: 11025, guid: 0000000000000000e000000000000000, type: 0}
+      m_Background: {fileID: 0}
       m_ScaledBackgrounds: []
       m_TextColor: {r: 1, g: 1, b: 1, a: 1}
     m_OnHover:
@@ -407,7 +408,7 @@ MonoBehaviour:
     m_FontStyle: 0
     m_Alignment: 0
     m_WordWrap: 1
-    m_RichText: 0
+    m_RichText: 1
     m_TextClipping: 1
     m_ImagePosition: 0
     m_ContentOffset: {x: 0, y: 0}
