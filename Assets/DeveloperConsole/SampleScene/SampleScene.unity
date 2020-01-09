@@ -2421,7 +2421,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8340326486246511727, guid: 209bba3a3dbbb834ebcf90e0c7d7aeee, type: 3}
       propertyPath: lineSpacing
-      value: 20
+      value: 19
       objectReference: {fileID: 0}
     - target: {fileID: 8340326486246511727, guid: 209bba3a3dbbb834ebcf90e0c7d7aeee, type: 3}
       propertyPath: printUnityConsole

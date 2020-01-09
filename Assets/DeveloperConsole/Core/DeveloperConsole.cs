@@ -258,20 +258,8 @@ namespace Console
 #endif
         }
 
-        float timer = 0;
-
         public void Update()
-        {
-            if (timer > 0.02f)
-            {
-                WriteLine("test" + timer);
-                timer = 0;
-            }
-            else
-            {
-                timer += Time.deltaTime;
-            }
-
+        { 
 
             if (Input.GetKeyDown(KeyCode.H))
             {
