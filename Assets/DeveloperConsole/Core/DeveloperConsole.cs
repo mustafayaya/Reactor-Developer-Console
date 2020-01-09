@@ -104,7 +104,7 @@ namespace Console
         {
             consoleOutputs.Add(consoleOutput);
             Instance.scrollDownTrigger = true;
-            OnOutputChange();
+            OnOutputChange(consoleOutput);
         }
 
 
@@ -113,14 +113,14 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.User, false);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
         public static void WriteSystem(object input)
         {
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.System);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
         public static void WriteLine(object input)//Write line without time tag
         {
@@ -139,7 +139,7 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log, false);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
         public static void WriteLog(object input)
         {
@@ -158,7 +158,7 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Log);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
 
         public static void WriteWarning(object input)
@@ -178,7 +178,7 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Warning);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
         public static void WriteError(object input)
         {
@@ -197,7 +197,7 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Error);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
         public static void WriteNetwork(object input)
         {
@@ -216,7 +216,7 @@ namespace Console
             ConsoleOutput output = new ConsoleOutput(input.ToString(), ConsoleOutput.OutputType.Network);
             Instance.consoleOutputs.Add(output);
             Instance.scrollDownTrigger = true;
-            Instance.OnOutputChange();
+            Instance.OnOutputChange(output);
         }
 
         #endregion
@@ -258,11 +258,23 @@ namespace Console
 #endif
         }
 
+        float timer = 0;
+
         public void Update()
         {
+            if (timer > 0.02f)
+            {
+                WriteLine("test" + timer);
+                timer = 0;
+            }
+            else
+            {
+                timer += Time.deltaTime;
+            }
+
+
             if (Input.GetKeyDown(KeyCode.H))
             {
-                trigger = false;
                 HandleLinespacing();
 
             }
@@ -320,7 +332,7 @@ namespace Console
             }
         }
 
-        private int outputLimit = 10000; //Limit the output for performance issues
+        private int outputLimit = 550; //Limit the output for performance issues
         private void OutputManager()//Manage console output
         {
             //Remove old logs for avoid performance issues & stackoverflow exception 
@@ -338,6 +350,7 @@ namespace Console
 
         void OnGUI() //GUI
         {
+            GUI.Label(new Rect(0,0,50,50),textFieldHeight.ToString()) ;
             if (_active)//If active, draw console window
             {
                 GUI.depth = 1;
@@ -450,9 +463,10 @@ namespace Console
 
             if (GUI.Button(new Rect(windowRect.width - 40, windowRect.height - 45, 20, 25), "X", skin.button))
             {
-                 OnOutputChange();
                 consoleOutputs.Clear();
                 inputHistory.Clear();
+                _markupOutput = "";
+                WriteSystem("Flush!");
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
 
@@ -483,43 +497,33 @@ namespace Console
             
         }
 
-        public void OnOutputChange()
-        {
-            HandleLinespacing();
+        float textFieldHeight;
 
+        public void OnOutputChange(ConsoleOutput output)
+        {
+            _markupOutput += output.output;
+            textFieldHeight += CalculateConsoleOutputHeight(windowRect.width-60,output,skin.textArea);
         }
 
         public void HandleLinespacing()
         {
+            float _fheight = 0;
             for (int i = 0; i < consoleOutputs.Count; i++)
             {
-                int space = 0;
-                CalculateLinespace(new Rect(20, 20 + space, windowRect.width - 60, lineSpacing), consoleOutputs[i], skin.label);
-
-                foreach (ConsoleOutput c in consoleOutputs)
-                {
-                    if (consoleOutputs.IndexOf(c) < i)
-                    {
-                        space += c.lines * lineSpacing;
-                    }
-                }
+                _fheight += CalculateConsoleOutputHeight(windowRect.width - 60, consoleOutputs[i], skin.label);
+           
             }
-            trigger = true;
+            textFieldHeight = _fheight;
         }
+
+        string _markupOutput = ""; //collect the abstract output in this field
 
         private void DrawOutput(int outputHeight)
         {
-            string _markupOutput = ""; //collect the output in this field
-
-            for (int i = 0; i < consoleOutputs.Count; i++)
-            {
-                _markupOutput += consoleOutputs[i].output;
-            }
             outputHeight = Mathf.Clamp(outputHeight,(int)windowRect.height,200048);
-            GUI.TextArea(new Rect(20,20,windowRect.width -40,outputHeight),_markupOutput,skin.textArea);
+            textFieldHeight = Mathf.Clamp(textFieldHeight,20,999999);
+            GUI.TextArea(new Rect(20,20,windowRect.width -40,textFieldHeight),_markupOutput,skin.textArea);
         }
-
-
 
         bool handleClicked = false;
         Vector3 clickedPosition;
@@ -579,12 +583,10 @@ namespace Console
             ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).MoveTextEnd();
         }
 
-        bool trigger;
-        private void CalculateLinespace(Rect position, ConsoleOutput consoleOutput, GUIStyle style)
+        private float CalculateConsoleOutputHeight(float outputBoxWidth, ConsoleOutput consoleOutput, GUIStyle style)
         {
             style.font.RequestCharactersInTexture(consoleOutput.output, style.fontSize, style.fontStyle);
             var outputLines = consoleOutput.output.Split('\n');
-
             int lines = 0;
             foreach (string line in outputLines)
             {
@@ -597,17 +599,12 @@ namespace Console
                     style.font.GetCharacterInfo(c, out characterInfo, style.fontSize, style.fontStyle);
                     _labelWidth += (int)characterInfo.width;
                 }
-
-                lines += (int)Mathf.Clamp(Mathf.Floor(_labelWidth / position.width), 0, 128);
-
+                lines += (int)Mathf.Clamp(Mathf.Floor(_labelWidth / outputBoxWidth), 0, 128);
             }
         
             lines += outputLines.Count() - 1;
-            if (!trigger)
-            {
-                Debug.Log(lines +"{"+consoleOutput.output );
-            }
             consoleOutput.lines = lines;
+            return lines * lineSpacing;
         }
 
         #endregion
