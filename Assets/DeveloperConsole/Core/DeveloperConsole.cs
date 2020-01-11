@@ -320,7 +320,7 @@ namespace Console
             }
         }
 
-        private int outputLimit = 550; //Limit the output for performance issues
+        private int outputLimit = 80; //Limit the output for performance issues
         private void OutputManager()//Manage console output
         {
             //Remove old logs for avoid performance issues & stackoverflow exception 
@@ -454,6 +454,7 @@ namespace Console
                 consoleOutputs.Clear();
                 inputHistory.Clear();
                 _markupOutput = "";
+                textFieldHeight = 0;
                 WriteSystem("Flush!");
                 scrollPosition = new Vector2(scrollPosition.x, consoleOutputs.Count * 20);
             }
