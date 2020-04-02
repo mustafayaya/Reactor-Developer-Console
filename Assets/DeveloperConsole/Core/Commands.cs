@@ -359,7 +359,7 @@ namespace Console
             public override ConsoleOutput Logic()
             {
                 base.Logic();
-                System.media.SystemSounds.Beep.Play();
+                System.Media.SystemSounds.Beep.Play();
                 return new ConsoleOutput("Beeping", ConsoleOutput.OutputType.Log);
             }
         }
