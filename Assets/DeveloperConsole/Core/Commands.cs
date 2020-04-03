@@ -200,6 +200,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<string>(null, null);
+                DeveloperConsole.ParamQuery<string>(null);
             }
             public HelpCommand()
             {
@@ -260,6 +261,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Transform>(null, null);
                 new CommandParameter<Vector3>(null, null);
+                DeveloperConsole.ParamQuery<Transform>(null);
+                DeveloperConsole.ParamQuery<Vector3>(null);
             }
             public Move()
             {
@@ -288,6 +291,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Transform>(null, null);
                 new CommandParameter<Quaternion>(null, null);
+                DeveloperConsole.ParamQuery<Transform>(null);
+                DeveloperConsole.ParamQuery<Quaternion>(null);
             }
             public Rotate()
             {
@@ -403,6 +408,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<string>(null, null);
+                DeveloperConsole.ParamQuery<string>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -421,6 +427,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -453,6 +460,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<string>(null, null);
+                DeveloperConsole.ParamQuery<string>(null);
             }
 
             public override ConsoleOutput Logic()
@@ -481,6 +489,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<string>(null, null);
+                DeveloperConsole.ParamQuery<string>(null);
             }
 
             public override ConsoleOutput Logic()
@@ -518,6 +527,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
 
             public override ConsoleOutput Logic()
@@ -551,6 +561,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
 
             public override ConsoleOutput Logic()
@@ -571,6 +582,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
 
             public override ConsoleOutput Logic()
@@ -618,6 +630,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Color>(null, null);
+                DeveloperConsole.ParamQuery<Color>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -641,6 +654,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -663,6 +677,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -685,6 +700,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -737,6 +753,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Vector3>(null, null);
+                DeveloperConsole.ParamQuery<Vector3>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -756,6 +773,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -775,6 +793,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -794,6 +813,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -815,6 +835,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -835,6 +856,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Vector3>(null, null);
+                DeveloperConsole.ParamQuery<Vector3>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -855,6 +877,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -875,6 +898,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -895,6 +919,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -915,6 +940,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -935,6 +961,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -978,6 +1005,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -997,6 +1025,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1016,6 +1045,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1035,6 +1065,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1069,6 +1100,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1103,6 +1135,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1254,6 +1287,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Rigidbody>(null, null);
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
 
 
@@ -1280,6 +1315,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Rigidbody>(null, null);
                 new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+                DeveloperConsole.ParamQuery<bool>(null);
             }
 
 
