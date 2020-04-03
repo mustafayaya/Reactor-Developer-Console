@@ -1152,6 +1152,7 @@ namespace Console
             {
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<System.Globalization.CultureInfo>(null, null);
+                DeveloperConsole.ParamQuery<System.Globalization.CultureInfo>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1190,6 +1191,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Rigidbody>(null, null);
                 new CommandParameter<Vector3>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+                DeveloperConsole.ParamQuery<Vector3>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1215,6 +1218,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Rigidbody>(null, null);
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
@@ -1240,6 +1245,8 @@ namespace Console
                 base.UsedOnlyForAOTCodeGeneration();
                 new CommandParameter<Rigidbody>(null, null);
                 new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+                DeveloperConsole.ParamQuery<float>(null);
             }
             public override ConsoleOutput Logic()
             {
