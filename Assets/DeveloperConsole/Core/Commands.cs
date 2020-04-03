@@ -196,12 +196,6 @@ namespace Console
         {
             [CommandParameter("command")]
             public string queryIdentity;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<string>(null, null);
-                DeveloperConsole.ParamQuery<string>(null);
-            }
             public HelpCommand()
             {
 
@@ -404,12 +398,6 @@ namespace Console
         {
             [CommandParameter("string")]
             public string echoText;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<string>(null, null);
-                DeveloperConsole.ParamQuery<string>(null);
-            }
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -456,12 +444,6 @@ namespace Console
         {
             [CommandParameter("level")]
             public string targetLevel;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<string>(null, null);
-                DeveloperConsole.ParamQuery<string>(null);
-            }
 
             public override ConsoleOutput Logic()
             {
@@ -485,12 +467,6 @@ namespace Console
         {
             [CommandParameter("adress")]
             public string targetLevel;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<string>(null, null);
-                DeveloperConsole.ParamQuery<string>(null);
-            }
 
             public override ConsoleOutput Logic()
             {
