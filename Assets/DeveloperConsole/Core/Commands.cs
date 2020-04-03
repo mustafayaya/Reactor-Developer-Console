@@ -1031,7 +1031,7 @@ namespace Console
             [CommandParameter("Rigidbody")]
             public Rigidbody Rigidbody;
 
-            [CommandParameter("Vector3")]
+            [CommandParameter("float")]
             public float mass;
             public override ConsoleOutput Logic()
             {
@@ -1050,7 +1050,7 @@ namespace Console
             [CommandParameter("Rigidbody")]
             public Rigidbody Rigidbody;
 
-            [CommandParameter("Vector3")]
+            [CommandParameter("float")]
             public float drag;
             public override ConsoleOutput Logic()
             {
