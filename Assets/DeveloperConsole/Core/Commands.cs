@@ -1144,7 +1144,6 @@ namespace Console
         {
             [CommandParameter("CultureInfo")]
             public System.Globalization.CultureInfo value;
-
             public override ConsoleOutput Logic()
             {
                 base.Logic();
