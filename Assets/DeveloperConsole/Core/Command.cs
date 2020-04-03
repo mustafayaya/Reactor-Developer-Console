@@ -59,6 +59,11 @@ namespace Console {
         {
             return new ConsoleOutput("", ConsoleOutput.OutputType.Log);
         }
+        
+        public virtual void UsedOnlyForAOTCodeGeneration() 
+        {
+            throw new InvalidOperationException("This method is used for AOT code generation only. Do not call it at runtime.");
+        }
 
         public string GetDescription()
         {
