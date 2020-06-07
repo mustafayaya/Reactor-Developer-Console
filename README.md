@@ -103,7 +103,4 @@ If there are two same invoke definitions(same query identity and same parameters
 # Having an issue?
 Search in repo wiki, ask in forum or [contact me.](mustafa.yaya@outlook.com.tr)
 
-# Donations
-I am a game developer and student. Feel free to donate and help me make living. =)
-
 
