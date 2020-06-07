@@ -106,7 +106,4 @@ Search in repo wiki, ask in forum or [contact me.](mustafa.yaya@outlook.com.tr)
 # Donations
 I am a game developer and student. Feel free to donate and help me make living. =)
 
-Branch name: İSTANBUL
-IBAN: 1299-0576407
-TR08 0006 4000 0011 2990 5764 07
 
