@@ -164,7 +164,7 @@ namespace Console
                 foreach (System.Type type in assembly.GetTypes())
                 {
 
-                    if (type.GetCustomAttributes(typeof(ConsoleCommandAttribute), false).Length > 0 && type.BaseType == typeof(Command))
+                    if (type.IsDefined(typeof(ConsoleCommandAttribute), false) && type.BaseType == typeof(Command))
                     {
                         Command instance = (Command)Activator.CreateInstance(type);
                         yield return instance;
