@@ -144,6 +144,42 @@ namespace Console
             }
         }
 
+        [UnityEngine.Scripting.Preserve]
+        private static void UsedOnlyForAOTCodeGeneration()
+        {
+            try
+            {
+                new CommandParameter<bool>(null, null);
+                DeveloperConsole.ParamQuery<bool>(null);
+                
+                new CommandParameter<int>(null, null);
+                DeveloperConsole.ParamQuery<int>(null);
+                
+                new CommandParameter<float>(null, null);
+                DeveloperConsole.ParamQuery<float>(null);
+                
+                new CommandParameter<double>(null, null);
+                DeveloperConsole.ParamQuery<double>(null);
+                
+                new CommandParameter<Vector3>(null, null);
+                DeveloperConsole.ParamQuery<Vector3>(null);
+
+                new CommandParameter<Quaternion>(null, null);
+                DeveloperConsole.ParamQuery<Quaternion>(null);
+                
+                new CommandParameter<Transform>(null, null);
+                DeveloperConsole.ParamQuery<Transform>(null);
+                
+                new CommandParameter<Rigidbody>(null, null);
+                DeveloperConsole.ParamQuery<Rigidbody>(null);
+            }
+            catch (Exception e)
+            {
+                throw new InvalidOperationException(
+                    "This method is used for AOT code generation only. Do not call it at runtime.");
+            }
+        }
+
         #endregion
 
         #region commands
@@ -250,12 +286,7 @@ namespace Console
             public Transform transform;
             [CommandParameter("position")]
             public Vector3 position;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Vector3>(null, null);
-                DeveloperConsole.ParamQuery<Vector3>(null);
-            }
+
             public Move()
             {
 
@@ -278,12 +309,7 @@ namespace Console
             public Transform transform;
             [CommandParameter("rotation")]
             public Quaternion rotation;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Quaternion>(null, null);
-                DeveloperConsole.ParamQuery<Quaternion>(null);
-            }
+
             public Rotate()
             {
 
@@ -407,12 +433,7 @@ namespace Console
         {
             [CommandParameter("maxFPS")]
             public int maxFPS;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -495,12 +516,6 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
 
             public override ConsoleOutput Logic()
             {
@@ -529,12 +544,6 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
 
             public override ConsoleOutput Logic()
             {
@@ -550,12 +559,6 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
 
             public override ConsoleOutput Logic()
             {
@@ -598,12 +601,7 @@ namespace Console
 
             [CommandParameter("r,g,b")]
             public Color Color;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Color>(null, null);
-                DeveloperConsole.ParamQuery<Color>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -622,12 +620,7 @@ namespace Console
 
             [CommandParameter("bool")]
             public bool fog;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -645,12 +638,7 @@ namespace Console
 
             [CommandParameter("float")]
             public float start;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -668,12 +656,7 @@ namespace Console
 
             [CommandParameter("float")]
             public float start;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -721,12 +704,7 @@ namespace Console
         {
             [CommandParameter("Vector3")]
             public Vector3 gravity;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Vector3>(null, null);
-                DeveloperConsole.ParamQuery<Vector3>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -741,12 +719,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -761,12 +734,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -781,12 +749,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -803,12 +766,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -824,12 +782,7 @@ namespace Console
         {
             [CommandParameter("Vector3")]
             public Vector3 value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Vector3>(null, null);
-                DeveloperConsole.ParamQuery<Vector3>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -845,12 +798,7 @@ namespace Console
         {
             [CommandParameter("ShadowQuality")]
             public int value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -866,12 +814,7 @@ namespace Console
         {
             [CommandParameter("resolution")]
             public int value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -887,12 +830,7 @@ namespace Console
         {
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -908,12 +846,7 @@ namespace Console
         {
             [CommandParameter("int")]
             public int value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -929,12 +862,7 @@ namespace Console
         {
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -973,12 +901,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+  
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -993,12 +916,7 @@ namespace Console
         {
             [CommandParameter("int")]
             public int value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+ 
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1013,12 +931,7 @@ namespace Console
         {
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
+  
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1033,12 +946,7 @@ namespace Console
         {
             [CommandParameter("int")]
             public int value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<int>(null, null);
-                DeveloperConsole.ParamQuery<int>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1068,12 +976,7 @@ namespace Console
         {
             [CommandParameter("float")]
             public float value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1103,12 +1006,7 @@ namespace Console
         {
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1176,12 +1074,7 @@ namespace Console
 
             [CommandParameter("Vector3")]
             public Vector3 force;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<Vector3>(null, null);
-                DeveloperConsole.ParamQuery<Vector3>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1201,12 +1094,7 @@ namespace Console
 
             [CommandParameter("float")]
             public float mass;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1226,12 +1114,7 @@ namespace Console
 
             [CommandParameter("float")]
             public float drag;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<float>(null, null);
-                DeveloperConsole.ParamQuery<float>(null);
-            }
+
             public override ConsoleOutput Logic()
             {
                 base.Logic();
@@ -1249,13 +1132,6 @@ namespace Console
             public Rigidbody Rigidbody;
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
-
 
             public override ConsoleOutput Logic()
             {
@@ -1275,13 +1151,6 @@ namespace Console
             public Rigidbody Rigidbody;
             [CommandParameter("bool")]
             public bool value;
-            public override void UsedOnlyForAOTCodeGeneration()
-            {
-                base.UsedOnlyForAOTCodeGeneration();
-                new CommandParameter<bool>(null, null);
-                DeveloperConsole.ParamQuery<bool>(null);
-            }
-
 
             public override ConsoleOutput Logic()
             {
